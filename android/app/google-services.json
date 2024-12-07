@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "622996524957",
+    "project_id": "shiftmaker-fee68",
+    "storage_bucket": "shiftmaker-fee68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:622996524957:android:4ed4604918a308fde1e974",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1_shift_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTQ0f0r-hErcK_XuOi2HECherfHhTPUzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

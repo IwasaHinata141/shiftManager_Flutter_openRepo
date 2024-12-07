@@ -1,0 +1,22 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "shiftmaker-fee68",
+          "appId": "1:622996524957:android:4ed4604918a308fde1e974",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "shiftmaker-fee68",
+          "configurations": {
+            "android": "1:622996524957:android:4ed4604918a308fde1e974",
+            "ios": "1:622996524957:ios:39191109f7aec507e1e974"
+          }
+        }
+      }
+    }
+  }
+}
