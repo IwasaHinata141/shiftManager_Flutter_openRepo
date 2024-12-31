@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -32,6 +33,16 @@ class _SubmitPageState extends State<SubmitPage> {
   String totalWorkTime = "0";
   Map<String, dynamic> timeList = {};
   Map<String, dynamic> salaryList = {};
+  Map<String, dynamic> reloadedData = {};
+  bool status = true;
+  List<String> duration = [];
+  List<String> startTimeList = [];
+  List<String> endTimeList = [];
+  String groupName = "";
+  String groupId = "";
+  int hourlyWage = 0;
+  String? dropdownValue;
+  var _groupValue = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -43,34 +54,106 @@ class _SubmitPageState extends State<SubmitPage> {
             style: TextStyle(fontSize: 15),
           ),
           actions: [
-            IconButton(
-                onPressed: () => {
-                      context.read<DataProvider>().fetchData(),
-                      setState(() {
-                        predictSalary = "0";
-                        totalWorkTime = "0";
-                        timeList = {};
-                        salaryList = {};
-                      })
-                    },
-                icon: const Icon(Icons.restart_alt)),
+            Consumer<DataProvider>(builder: (context, dataProvider, child) {
+              return Row(
+                children: [
+                  IconButton(
+                      alignment: Alignment.centerLeft,
+                      onPressed: () async => {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: StatefulBuilder(
+                                    builder: (BuildContext context,
+                                            StateSetter setState) =>
+                                        Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: List.generate(
+                                        // 配列の要素数だけRadioListTileを生成
+                                        dataProvider.groupName.length,
+                                        (num) => RadioListTile(
+                                          value: num, // 値をインデックスにする
+                                          groupValue: _groupValue,
+                                          title: Text(dataProvider.groupName[
+                                              num]), // テキストをリストの要素から取得
+                                          onChanged: (int? value) async {
+                                            final newstatus = await getStatus(
+                                                dataProvider.groupId[num]);
+                                            final newduration =
+                                                await getDuration(
+                                                    dataProvider.groupId[num]);
+                                            final newstartTimeList =
+                                                await generateEmptyList(
+                                                    newduration.length);
+                                            print(newstartTimeList);
+                                            final newendTimeList =
+                                                await generateEmptyList(
+                                                    newduration.length);
+                                            print(newendTimeList);
+
+                                            setState(() {
+                                              _groupValue = value!;
+                                              groupName =
+                                                  dataProvider.groupName[num];
+                                              groupId = dataProvider.groupId[num];
+                                              status = newstatus;
+                                              duration = newduration;
+                                              startTimeList = newstartTimeList;
+                                              endTimeList = newendTimeList;
+                                              hourlyWage = dataProvider.hourlyWage["${groupName}"];
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ).then((value) => setState(() {
+                                  reloadedData["status"] = status;
+                                  reloadedData["duration"] = duration;
+                                  reloadedData["startTimeList"] = startTimeList;
+                                  reloadedData["endTimeList"] = endTimeList;
+                                  reloadedData["groupName"] = groupName;
+                                  reloadedData["groupId"] = groupId;
+                                  reloadedData["hourlyWage"] = hourlyWage;
+                                }))
+                          },
+                      icon: const Icon(Icons.tune)),
+                  IconButton(
+                      onPressed: () => {
+                            context.read<DataProvider>().fetchData(),
+                            setState(() {
+                              predictSalary = "0";
+                              totalWorkTime = "0";
+                              timeList = {};
+                              salaryList = {};
+                            })
+                          },
+                      icon: const Icon(Icons.restart_alt)),
+                ],
+              );
+            }),
           ],
           backgroundColor: Color.fromARGB(255, 228, 228, 228),
         ),
         body: Consumer<DataProvider>(builder: (context, dataProvider, child) {
           return mainSubmitPage(
-              dataProvider.status,
-              dataProvider.duration,
-              dataProvider.startTimeList,
-              dataProvider.endTimeList,
-              dataProvider.hourlyWage);
+              reloadedData["status"] ?? dataProvider.status,
+              reloadedData["duration"] ?? dataProvider.duration,
+              reloadedData["startTimeList"] ?? dataProvider.startTimeList,
+              reloadedData["endTimeList"] ?? dataProvider.endTimeList,
+              reloadedData["hourlyWage"] ?? dataProvider.hourlyWage["${dataProvider.groupName[0]}"],
+              reloadedData["groupName"] ?? dataProvider.groupName,
+              reloadedData["groupId"] ?? dataProvider.groupId[0]);
         }));
   }
 
   ///---------------------------------------------------------///
 
-  Center mainSubmitPage(
-      status, duration, startTimeList, endTimeList, hourlyWage) {
+  Center mainSubmitPage(status, duration, startTimeList, endTimeList,
+      hourlyWage, groupName, groupId) {
     if (status == false) {
       return Center(
         child: Column(
@@ -81,10 +164,37 @@ class _SubmitPageState extends State<SubmitPage> {
                 alignment: Alignment.center,
                 width: double.infinity,
                 color: const Color.fromARGB(255, 71, 69, 62),
-                child: const Text(
-                  "募集期間中ではありません",
-                  style: TextStyle(color: Colors.white70),
-                  textAlign: TextAlign.center,
+                child: groupName[0] !="no data" ?
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,   
+                    children: [
+                      Text(
+                        "${reloadedData["groupName"] ?? groupName[0]}は",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        "募集期間中ではありません",
+                        style: TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ):Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,   
+                    children: [
+                      Text(
+                        "グループに参加していません",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        "マイページからグループに参加してください",
+                        style: TextStyle(color: Colors.white70),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -118,9 +228,16 @@ class _SubmitPageState extends State<SubmitPage> {
                           ),
                         ),
                         Spacer(),
+                        Text("${reloadedData["groupName"] ?? groupName[0]}",
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                            )),
                         Text("勤務時間${totalWorkTime}時間 × 時給${hourlyWage}円",
-                            style:
-                                TextStyle(fontSize: 15, color: Colors.black)),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                            )),
                         Spacer(),
                         Container(
                             alignment: Alignment.bottomRight,
@@ -172,10 +289,7 @@ class _SubmitPageState extends State<SubmitPage> {
                           ),
                           child: Text(duration[index]),
                         ),
-                        Container(
-                          alignment: Alignment.center,
-                          height: 70,
-                          width: 100,
+                        Expanded(
                           child: TextButton(
                             child: Text(
                               "開始:${startTimeList[index]}",
@@ -218,13 +332,7 @@ class _SubmitPageState extends State<SubmitPage> {
                           alignment: Alignment.center,
                           child: Text("-"),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  right: BorderSide(color: Colors.grey))),
-                          alignment: Alignment.center,
-                          height: 70,
-                          width: 100,
+                        Expanded(
                           child: TextButton(
                             child: Text(
                               "終了:${endTimeList[index]}",
@@ -262,7 +370,11 @@ class _SubmitPageState extends State<SubmitPage> {
                             },
                           ),
                         ),
-                        Expanded(
+                        Container(
+                          width: 90,
+                          decoration: BoxDecoration(
+                              border:
+                                  Border(left: BorderSide(color: Colors.grey))),
                           child: Column(
                             children: [
                               Container(
@@ -284,7 +396,7 @@ class _SubmitPageState extends State<SubmitPage> {
                                       Text("${(salaryList["${index}"] ?? "0")}",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 20)),
+                                              fontSize: 18)),
                                     ],
                                   )),
                             ],
@@ -325,6 +437,7 @@ class _SubmitPageState extends State<SubmitPage> {
                             startTimeList: startTimeList,
                             endTimeList: endTimeList,
                             duration: duration,
+                            groupId: groupId,
                           );
                         });
                   },

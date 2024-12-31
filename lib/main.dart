@@ -5,20 +5,41 @@ import 'firebase_options.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/login_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
-import './refactor/actions/getdata_action.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  initializeDateFormatting().then((_) => runApp(MyApp()));
+
+  // FCM の通知権限リクエスト
+  final messaging = FirebaseMessaging.instance;
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    announcement: false,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+
+  print('User granted permission: ${settings.authorizationStatus}');
+
+  String? fcmToken = await messaging.getToken();
+  print('FCM TOKEN: $fcmToken');
+  initializeDateFormatting().then((_) => runApp(MyApp(
+        fcmToken: fcmToken
+      )));
 }
 
 class MyApp extends StatelessWidget {
+  MyApp({required this.fcmToken});
   // This widget is the root of your application.
+  String? fcmToken;
 
   final db = FirebaseFirestore.instance;
 
@@ -38,8 +59,20 @@ class MyApp extends StatelessWidget {
                 print(
                     "this is user emailVerified [${snapshot.data!.emailVerified}]");
                 if (snapshot.data!.emailVerified) {
+                  final db = FirebaseFirestore.instance;
+                  final auth = FirebaseAuth.instance;
+                  final userId = auth.currentUser?.uid.toString();
+                  db
+                      .collection('Users')
+                      .doc(userId)
+                      .collection("MyInfo")
+                      .doc("userInfo")
+                      .update({"token": fcmToken});
                   return ChangeNotifierProvider(
-                      create: (_) => DataProvider(), child: MyHomePage(count: 0,));
+                      create: (_) => DataProvider(),
+                      child: MyHomePage(
+                        count: 0,
+                      ));
                 } else {
                   return LoginScreenPage();
                 }

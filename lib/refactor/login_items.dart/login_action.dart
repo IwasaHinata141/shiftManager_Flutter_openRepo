@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1_shift_manager/main.dart';
 import '../actions/getdata_action.dart';
@@ -28,13 +29,28 @@ Future<String> loginAction(loginUserEmail, loginUserPassword, context) async {
         email: loginUserEmail,
         password: loginUserPassword,
       );
-      final userId = result.user?.uid;
-      final groupId = await getGroupId(userId);
-      print("groupId : ${groupId}");
+      
+      final messaging = FirebaseMessaging.instance;
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+      print('User granted permission: ${settings.authorizationStatus}');
 
+      // トークンを取得して表示（デバッグ用）
+      String? fcmToken = await messaging.getToken();
+      print('FCM TOKEN: $fcmToken');
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MyApp()),
+        MaterialPageRoute(
+            builder: (context) => MyApp(
+                  fcmToken: fcmToken,
+                )),
       );
 
       infoText = "ログイン成功";

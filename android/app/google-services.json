@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:622996524957:android:4ed4604918a308fde1e974",
         "android_client_info": {
-          "package_name": "com.example.flutter_application_1_shift_manager"
+          "package_name": "jp.example.shiftmanager"
         }
       },
       "oauth_client": [],
