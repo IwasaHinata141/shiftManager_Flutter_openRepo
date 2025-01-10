@@ -52,7 +52,7 @@ android {
         minSdkVersion 23
         targetSdkVersion flutter.targetSdkVersion 
         multiDexEnabled true
-        versionCode flutterVersionCode.toInteger()
+        versionCode 3
         versionName flutterVersionName
     }
     signingConfigs {

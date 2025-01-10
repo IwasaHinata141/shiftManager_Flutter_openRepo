@@ -21,22 +21,19 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
       .doc("shift");
   await doc_ref_shift.get().then((DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
-    print(data.keys);
 
     if (data.length != 1) {
       Iterable<String> keys = data.keys;
       for (String key in keys) {
-        print(key);
         final groupName = key;
-        print(groupName);
         if (groupName != "no data") {
           Map<String, dynamic> valueData = data["${groupName}"];
-          print(valueData);
           Map<String, dynamic> calculatedDataInstance =
               await calculateSalary2(hourlyWage, groupName, valueData);
           calculatedDataMap.addAll(calculatedDataInstance);
-          summarySalary = summarySalary +int.parse(calculatedDataInstance["${groupName}"]["totalsalary"]);
-          print("calculatedData :${calculatedDataMap}");
+          int salary = calculatedDataInstance["${groupName}"]["totalsalary"];
+          summarySalary = summarySalary + salary;
+
           salaryInfo["salaryInfo"] = calculatedDataMap;
 
           await Future.forEach(valueData.entries, (entry) {
@@ -52,32 +49,26 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
       }
     } else {
       String newkey = "";
-      print("else");
       Iterable<String> keys = data.keys;
       for (String key in keys) {
-        print(key);
         newkey = key;
       }
       final groupName = newkey;
       Map<String, dynamic> valueData = data["${groupName}"];
-      print(valueData);
+
       Map<String, dynamic> calculatedDataInstance =
           await calculateSalary2(hourlyWage, groupName, valueData);
       calculatedDataMap.addAll(calculatedDataInstance);
-      print(calculatedDataInstance);
       if (calculatedDataInstance["${groupName}"]["totalsalary"] != "0") {
         List salarysplit =
             (calculatedDataInstance["${groupName}"]["totalsalary"].split(","));
         summarySalary =
             summarySalary + int.parse(salarysplit[0] + salarysplit[1]);
-        print("calculatedData :${calculatedDataMap}");
       } else {
-        print("totalsalary is 0");
         summarySalary = 0;
-        print("calculatedData :${calculatedDataMap}");
       }
       salaryInfo["salaryInfo"] = calculatedDataMap;
-      print(salaryInfo);
+
       await Future.forEach(valueData.entries, (entry) {
         var list = ["${groupName}  ${entry.value.toString()}"];
         if (shift["${entry.key}"] == null) {
@@ -91,7 +82,6 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
 
     final numformatter = NumberFormat("#,###");
     summarySalaryText = numformatter.format(summarySalary);
-    print("total :${summarySalaryText}");
   });
   return [shift, salaryInfo, summarySalaryText];
 }
@@ -134,8 +124,7 @@ Future<Map<String, dynamic>> calculateSalary2(
       totaldiffhour = totaldiffhour + diffhour;
     }
   }
-  final numformatter = NumberFormat("#,###");
-  result["totalsalary"] = numformatter.format(totalsalary);
+  result["totalsalary"] = totalsalary;
   result["attendcount"] = attendcount;
   result["totaldiffhour"] = totaldiffhour.toStringAsFixed(2);
   responce[groupName] = result;
@@ -164,8 +153,10 @@ Future<List<String>> getDuration(groupId) async {
     DateTime day_of_start = DateTime.parse(startDay);
     DateTime day_of_end = DateTime.parse(endDay);
     Duration difference = day_of_end.difference(day_of_start);
+    DateFormat formatter = DateFormat('yyyy/MM/dd');
     for (int i = 0; i <= difference.inDays; i++) {
-      listOfShiftDay.add("${day_of_start.month}/${day_of_start.day}");
+      String formattedDate = formatter.format(day_of_start);
+      listOfShiftDay.add("${formattedDate}");
       day_of_start = day_of_start.add(Duration(days: 1));
     }
   });
@@ -191,52 +182,43 @@ Future submitMyshift(
   final Map<String, dynamic> shift = {};
   final Map<String, dynamic> startshift = {};
   final Map<String, dynamic> endshift = {};
-  List<String> dayList = [];
   for (int i = 0; i < duration.length; i++) {
-    dayList.add(duration[i].split("/")[1]);
+    if (startTimeList[i] != "-" && endTimeList[i] != "-") {
+      startshift[duration[i]] = startTimeList[i];
+      endshift[duration[i]] = endTimeList[i];
+    }
   }
-  for (int i = 0; i < dayList.length; i++) {
-    startshift[dayList[i]] = startTimeList[i];
-    endshift[dayList[i]] = endTimeList[i];
-  }
-  shift["開始"] = startshift;
-  shift["終了"] = endshift;
-  uploadData["${groupId}"] = shift;
-  uploadData["RequestedGroupId"] = groupId;
-  print(uploadData);
-
+  shift["start"] = startshift;
+  shift["end"] = endshift;
   var auth = FirebaseAuth.instance;
   var userId = auth.currentUser?.uid.toString();
+  uploadData["${userId}"] = shift;
+  print(uploadData);
   final db = FirebaseFirestore.instance;
 
   await db
-      .collection('Users')
-      .doc(userId)
-      .collection("RequestShift")
-      .doc("shift")
-      .update(uploadData);
+      .collection('Groups')
+      .doc(groupId)
+      .collection("groupInfo")
+      .doc("RequestShiftList")
+      .set(uploadData);
 }
 
 Future getUserInfo(userId) async {
   final db = FirebaseFirestore.instance;
-  print(userId);
-  print(db);
 
   final docRef =
       db.collection('Users').doc(userId).collection("MyInfo").doc("userInfo");
-  print(docRef);
   var groupId = [];
   DateTime birthday;
   String username = "";
   Map<String, dynamic> hourlyWage = {};
   List<dynamic> userInfo = [];
   try {
-    print("start");
     await docRef.get().then(
       onError: (e) => print("Error getting document: $e"),
       (DocumentSnapshot doc) {
         final data = doc.data() as Map<String, dynamic>;
-        print(data);
         if (data["groupId"].length == 1) {
           print("length is 1");
           groupId.add(data["groupId"]["1"]);
@@ -248,12 +230,10 @@ Future getUserInfo(userId) async {
         birthday = DateTime.parse(data["birthday"]);
         username = data["username"];
         hourlyWage = data["hourlyWage"];
-        print("hourlyWage:${hourlyWage}");
         userInfo.add(groupId);
         userInfo.add(birthday);
         userInfo.add(username);
         userInfo.add(hourlyWage);
-        print("groupId:${groupId}");
       },
     );
   } catch (e) {
@@ -276,7 +256,6 @@ Future<bool> getStatus(groupId) async {
     final data = doc.data() as Map<String, dynamic>;
     status = data["status"];
   });
-  print("test:${status}");
   return status;
 }
 
@@ -343,7 +322,6 @@ Future<List<dynamic>> calculateSalaryReload(
   Map<String, dynamic> calculatedDataMap = {};
   int summarySalary = 0;
   Map<String, dynamic> salaryInfo = {};
-  print("-----------------------------------");
 
   for (int i = 0; i < groupName.length; i++) {
     var testDic = {};
@@ -352,7 +330,6 @@ Future<List<dynamic>> calculateSalaryReload(
     var attendcount = 0;
     Map<String, dynamic> result = {};
     Map<String, dynamic> responce = {};
-    print(groupName[i]);
 
     for (DateTime date = firstDay;
         date.isBefore(finalDay.add(Duration(days: 1)));
@@ -360,12 +337,10 @@ Future<List<dynamic>> calculateSalaryReload(
       final dateString = date.toString().split(" ")[0].replaceAll("-", "/");
       final dataField = shiftdata[dateString];
       if (dataField != null) {
-        print("dataField:${dataField.length}");
         for (int j = 0; j < dataField.length; j++) {
           final listItem = dataField[j].split("  ");
           if (groupName[i] == listItem[0]) {
             attendcount++;
-            print("listItem:${listItem[1]}");
             final timeItem = listItem[1].split(" - ");
             final start = timeItem[0];
             final end = timeItem[1];
@@ -375,12 +350,9 @@ Future<List<dynamic>> calculateSalaryReload(
             DateTime endtime = formatter.parse(dayListItemEnd);
             final diffminute = endtime.difference(starttime).inMinutes;
             final diffhour = diffminute / 60;
-            print("groupName:${groupName[i]}");
             final salary = (diffhour * hourlyWage["${groupName[i]}"]).toInt();
             totalsalary = totalsalary + salary;
             totaldiffhour = totaldiffhour + diffhour;
-            print("totaldiffhour:${totaldiffhour}");
-            print("attendcount:${attendcount}");
           }
         }
       }
@@ -392,13 +364,9 @@ Future<List<dynamic>> calculateSalaryReload(
     result["totaldiffhour"] = totaldiffhour.toStringAsFixed(2);
     responce["${groupName[i]}"] = result;
     calculatedDataMap.addAll(responce);
-    print("calculatedDataMap: ${calculatedDataMap}");
     summarySalaryText = numformatter.format(summarySalary);
-    print(summarySalaryText);
   }
   salaryInfo["salaryInfo"] = calculatedDataMap;
-  print("salaryInfo:${salaryInfo}");
-
   return [salaryInfo, summarySalaryText];
 }
 
@@ -406,7 +374,6 @@ Future<List> getGroupName(groupId, db) async {
   List groupName = [];
 
   for (int i = 0; i < groupId.length; i++) {
-    print("groupId:${groupId[i]}");
     final doc_ref_groupname = db
         .collection("Groups")
         .doc(groupId[i])
@@ -424,12 +391,9 @@ Future<List> getGroupName(groupId, db) async {
 Future<String> getUserImage(userId) async {
   String userImage = "";
   final storageRef = FirebaseStorage.instance.ref();
-
   final pathReference =
       storageRef.child("Users/${userId}/UserImage/userImage.png");
   userImage = await pathReference.getDownloadURL();
-
-  print(userImage);
   return userImage;
 }
 
@@ -443,7 +407,9 @@ Future<List> getData(db) async {
   final birthday = userInfo[1];
   final username = userInfo[2];
   final hourlyWage = userInfo[3];
+
   final shiftdata = await getMyShift(userId, db, hourlyWage);
+
   final duration = await getDuration(groupId[0]);
   final List<String> startTimeList = await generateEmptyList(duration.length);
   final List<String> endTimeList = await generateEmptyList(duration.length);
@@ -451,7 +417,6 @@ Future<List> getData(db) async {
   final groupName = await getGroupName(groupId, db);
   final Map<String, dynamic> salaryInfo = shiftdata[1]["salaryInfo"];
   final summarySalary = shiftdata[2];
-
 
   return [
     shiftdata[0],

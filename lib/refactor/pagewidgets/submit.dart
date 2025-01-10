@@ -287,7 +287,7 @@ class _SubmitPageState extends State<SubmitPage> {
                           decoration: const BoxDecoration(
                             color: Color.fromARGB(255, 230, 228, 228),
                           ),
-                          child: Text(duration[index]),
+                          child: Text("${duration[index].split("/")[1]}/${duration[index].split("/")[2]}"),
                         ),
                         Expanded(
                           child: TextButton(
