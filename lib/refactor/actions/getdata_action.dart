@@ -1,11 +1,7 @@
 import 'dart:async';
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/actions/request_action.dart';
 import 'package:intl/intl.dart';
 
 Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
@@ -259,53 +255,6 @@ Future<bool> getStatus(groupId) async {
   return status;
 }
 
-/*
-Future<Map<String, dynamic>> calculateSalary(shiftdata, hourlyWage) async {
-  int totalsalary = 0;
-  double totaldiffhour = 0;
-  Map<String, dynamic> result = {};
-  DateFormat formatter = DateFormat('yyyy/MM/dd HH:mm');
-  final DateTime now = DateTime.now();
-  final startDay = formatter.format(DateTime(now.year, now.month, 1));
-  final endDay = formatter
-      .format(DateTime(now.year, now.month + 1, 1).subtract(Duration(days: 1)));
-  final firstDay = formatter.parse(startDay);
-  final finalDay = formatter.parse(endDay);
-  var attendcount = 0;
-  // 空のリストを初期化
-  // firstDayからfinalDayまでの間の日付を順にリストに追加
-  for (DateTime date = firstDay;
-      date.isBefore(finalDay.add(Duration(days: 1)));
-      date = date.add(Duration(days: 1))) {
-    final dateString = date.toString().split(" ")[0].replaceAll("-", "/");
-    final dataField = shiftdata[dateString];
-    if (dataField != null) {
-      attendcount++;
-
-      final listItem = dataField[0].split("  ");
-
-      final timeItem = listItem[1].split(" - ");
-      final start = timeItem[0];
-      final end = timeItem[1];
-      final dayListItemStart = "${dateString} ${start}";
-      final dayListItemEnd = "${dateString} ${end}";
-      DateTime starttime = formatter.parse(dayListItemStart);
-      DateTime endtime = formatter.parse(dayListItemEnd);
-
-      final diffminute = endtime.difference(starttime).inMinutes;
-      final diffhour = diffminute / 60;
-      final salary = (diffhour * hourlyWage).toInt();
-      totalsalary = totalsalary + salary;
-      totaldiffhour = totaldiffhour + diffhour;
-    }
-  }
-  final numformatter = NumberFormat("#,###");
-  result["totalsalary"] = numformatter.format(totalsalary);
-  result["attendcount"] = attendcount;
-  result["totaldiffhour"] = totaldiffhour.toStringAsFixed(2);
-  return result;
-}
-*/
 Future<List<dynamic>> calculateSalaryReload(
     focusedDay, shiftdata, hourlyWage, groupName) async {
   Map<String, dynamic> result = {};

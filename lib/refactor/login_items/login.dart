@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/login_items.dart/sign_up.dart';
-import 'package:flutter_application_1_shift_manager/refactor/login_items.dart/login_action.dart';
+import 'package:flutter_application_1_shift_manager/refactor/login_items/sign_up.dart';
+import 'package:flutter_application_1_shift_manager/refactor/login_items/login_action.dart';
 import '../pagewidgets/reset_password.dart';
+
+// ログイン画面
+/* 
+機能：
+ログイン、新規登録画面への遷移、パスワードの再設定画面への遷移
+*/
 
 class LoginPage extends StatefulWidget {
   @override
@@ -9,12 +15,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> {
-  // 入力されたメールアドレス（ログイン）
+  // 入力されたメールアドレス
   String loginUserEmail = "";
-  // 入力されたパスワード（ログイン）
+  // 入力されたパスワード
   String loginUserPassword = "";
-  // 登録・ログインに関する情報を表示
+  // ログインに関する情報を表示
   String infoText = "";
+  // ログイン関数からの戻り値
   String answer = "";
   @override
   Widget build(BuildContext context) {
@@ -26,6 +33,7 @@ class _LoginPage extends State<LoginPage> {
             child: Column(
               children: <Widget>[
                 const SizedBox(height: 32),
+                // メールアドレスの入力フォーム
                 TextFormField(
                   decoration: InputDecoration(labelText: "メールアドレス"),
                   onChanged: (String value) {
@@ -34,6 +42,7 @@ class _LoginPage extends State<LoginPage> {
                     });
                   },
                 ),
+                // パスワードの入力フォーム
                 TextFormField(
                   decoration: InputDecoration(labelText: "パスワード"),
                   obscureText: true,
@@ -44,20 +53,25 @@ class _LoginPage extends State<LoginPage> {
                   },
                 ),
                 const SizedBox(height: 3),
+                //パスワードを忘れた場合にはパスワード再設定を行う
                 Container(
                     height: 40,
                     child: TextButton(
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => ResetPassword()),
+                            MaterialPageRoute(
+                                builder: (context) => ResetPassword()),
                           );
                         },
                         child: Text("パスワードをお忘れの場合"))),
                 Text(infoText),
+
+                //ログインボタン
                 ElevatedButton(
                   child: Text("ログイン"),
                   onPressed: () async {
+                    // loginActionはログイン処理を行う関数
                     answer = await loginAction(
                         loginUserEmail, loginUserPassword, context);
                     if (mounted) {
@@ -67,6 +81,7 @@ class _LoginPage extends State<LoginPage> {
                     }
                   },
                 ),
+                //新規登録画面への遷移を行うボタン
                 const SizedBox(height: 8),
                 ElevatedButton(
                   child: Text("新規登録"),

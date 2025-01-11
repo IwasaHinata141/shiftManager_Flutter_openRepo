@@ -1,6 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../screens/login_screen.dart';
+import 'package:flutter_application_1_shift_manager/refactor/login_items/login.dart';
+
+// パスワードの再設定画面
+/*
+機能：
+メールアドレスにパスワード再設定のリンクを送信する
+備考：
+パスワード再設定はリンクにアクセスしてから完了する
+このアプリ側からは再設定が完了したかどうかは分からない
+*/
 
 class ResetPassword extends StatefulWidget {
   @override
@@ -8,7 +17,9 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPassword extends State<ResetPassword> {
+  // パスコード再設定に関する情報を表示
   String infoText = "";
+  // 入力されたメールアドレス
   String emailaddress = "";
 
   @override
@@ -21,8 +32,8 @@ class _ResetPassword extends State<ResetPassword> {
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
           onPressed: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => LoginScreenPage()));
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => LoginPage()));
           },
         ),
       ),
@@ -40,6 +51,7 @@ class _ResetPassword extends State<ResetPassword> {
                       border: Border.all(color: Colors.grey)),
                   child: Column(
                     children: [
+                      // パスワード再設定の手順の解説の文章
                       Container(
                         padding: EdgeInsets.all(10),
                         child: Text(
@@ -56,6 +68,7 @@ class _ResetPassword extends State<ResetPassword> {
                           child: Text("メールアドレス"),
                         ),
                       ),
+                      // メールアドレスの入力フォーム
                       Container(
                         padding: EdgeInsets.only(right: 10, left: 10),
                         height: 50,
@@ -74,28 +87,57 @@ class _ResetPassword extends State<ResetPassword> {
                           ),
                         ),
                       ),
+                      // 認証メールの送信の起動ボタン
                       Container(
                         padding: EdgeInsets.only(top: 10),
                         height: 50,
                         width: 200,
                         child: ElevatedButton(
                           onPressed: () async {
-                            try {
-                              final auth = FirebaseAuth.instance;
-                              await auth.sendPasswordResetEmail(
-                                  email: emailaddress);
+                            // 送信時のエラー処理
+                            if (emailaddress != "") {
+                              try {
+                                // 成功時
+                                final auth = FirebaseAuth.instance;
+                                await auth.sendPasswordResetEmail(
+                                    email: emailaddress);
+                                setState(() {
+                                  infoText = "認証メールを送信しました\nパスワードの再設定を完了してください";
+                                });
+                              } on FirebaseAuthException catch (e) {
+                                if (e.code == 'invalid-email') {
+                                  // 無効なメールアドレスの場合
+                                  setState(() {
+                                    infoText = "無効なメールアドレスです";
+                                  });
+                                } else if (e.code == 'user-not-found') {
+                                  // ユーザーが存在しない場合
+                                  setState(() {
+                                    infoText = "このアドレスは使用されていません";
+                                  });
+                                } else {
+                                  // その他の失敗の場合
+                                  setState(() {
+                                    infoText = "処理に失敗しました";
+                                  });
+                                }
+                              } on Exception {
+                                // 予期せぬエラーの場合
+                                setState(() {
+                                  infoText = "処理に失敗しました";
+                                });
+                              }
+                            } else {
+                              // メールアドレスの入力がない場合
                               setState(() {
-                                infoText = "認証メールを送信しました\nパスワードの再設定を完了してください";
-                              });
-                            } catch (e) {
-                              setState(() {
-                                infoText = "エラー";
+                                infoText = "メールアドレスを入力してください";
                               });
                             }
                           },
                           child: Text("認証メールを送信"),
                         ),
                       ),
+                      // メッセージテキストの表示
                       Container(
                         padding: EdgeInsets.only(top: 10),
                         child: Text(infoText),

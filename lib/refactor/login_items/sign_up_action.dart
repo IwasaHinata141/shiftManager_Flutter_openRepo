@@ -1,6 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+// 新規登録時に実行する関数
+/* 
+Firestoreにユーザーのコレクションを作成する関数
+ユーザーIDとフルネームを付加してリクエストする
+関数はClouf functions for Firebase にある
+*/
 
 Future signUpAction(fullname, userId) async {
     return http.post(

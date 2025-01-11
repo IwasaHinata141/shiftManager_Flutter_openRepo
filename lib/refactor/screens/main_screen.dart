@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/actions/request_action.dart';
 import 'package:flutter_application_1_shift_manager/refactor/pagewidgets/submit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../pagewidgets/receive.dart';
@@ -8,11 +7,21 @@ import '../actions/getdata_action.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+/// メイン画面を切り換えるための土台となるウィジェット
+/// 画面の切換にはbottomNavigationBarを使用
+/// ファイルない下部にProviderを配置しているが、移動を考えている
+/*
+機能：
+bottomNavigationBarによる画面の切換
+*/
+
+// ignore: must_be_immutable
 class MyHomePage extends StatefulWidget {
   MyHomePage({
     super.key,
     required this.count
   });
+  // bottomNavigationBarのインデックス
   int count = 0;
 
   
@@ -26,18 +35,24 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     // データの初期取得
     Provider.of<DataProvider>(context, listen: false).fetchData();
+    // データの取得を0.5秒待つ
     Future.delayed(Duration(milliseconds: 500));
   }
 
+   // bottomNavigationBarのページのリスト
    late final _pageWidgets = [
+            // ホーム画面
             ReceivePage(),
-            SubmitPage(),                
+            // シフト提出画面
+            SubmitPage(),    
+            // ユーザー設定画面            
             Setting()
           ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // bottomNavigationBarで指定された画面の表示
       body:_pageWidgets.elementAt(widget.count),
 
       bottomNavigationBar: BottomNavigationBar(
@@ -45,12 +60,13 @@ class _MyHomePageState extends State<MyHomePage> {
         currentIndex: widget.count,
         // タップ時のハンドラ
         onTap: (selectedIndex) => setState(() {
+          // インデックスを更新する
           widget.count = selectedIndex;
         }),
+        // bottomNavigationBarに表示するコンテンツのリスト
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'ホーム'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month), label: 'シフト提出'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'シフト提出'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'マイページ'),
         ],
         type: BottomNavigationBarType.fixed,
@@ -59,6 +75,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+
+/// Firestoreからユーザーの情報を取得し利用する為のProveider
+/// 
+/*
+機能(取得する情報)：
+シフトデータ、
+*/
 
 class DataProvider extends ChangeNotifier {
   

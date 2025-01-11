@@ -2,34 +2,30 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1_shift_manager/main.dart';
-import '../actions/getdata_action.dart';
 import 'dart:core';
+
+/// ログイン関数
+/* 
+機能：
+ログイン（メールアドレス・パスワード）、FCMトークンの取得、
+MyAppへの遷移
+*/
 
 Future<String> loginAction(loginUserEmail, loginUserPassword, context) async {
   String infoText = "";
   try {
-    print(loginUserEmail);
-    print(loginUserPassword);
-    // メール/パスワードでログイン
+    // Firebase authのリロード
     FirebaseAuth.instance.currentUser?.reload();
+    // Firebase authのインスタンス取得
     final FirebaseAuth auth = FirebaseAuth.instance;
+    // メールアドレス・パスワードでログイン
     await auth.signInWithEmailAndPassword(
       email: loginUserEmail,
       password: loginUserPassword,
     );
-    auth.authStateChanges().listen((User? user) {
-      if (user == null) {
-        print('サインアウトされています');
-      } else {
-        print('サインインしました uid:${user.uid}  email:${user.email}');
-      }
-    });
+    // メールアドレスの認証を検証
     if (auth.currentUser!.emailVerified) {
-      final result = await auth.signInWithEmailAndPassword(
-        email: loginUserEmail,
-        password: loginUserPassword,
-      );
-      
+      // FCM の通知権限リクエスト
       final messaging = FirebaseMessaging.instance;
       NotificationSettings settings = await messaging.requestPermission(
         alert: true,
@@ -41,10 +37,9 @@ Future<String> loginAction(loginUserEmail, loginUserPassword, context) async {
         sound: true,
       );
       print('User granted permission: ${settings.authorizationStatus}');
-
-      // トークンを取得して表示（デバッグ用）
+      // FCMトークンを取得
       String? fcmToken = await messaging.getToken();
-      print('FCM TOKEN: $fcmToken');
+      // FCMトークンを付加してMyAppに遷移
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -56,12 +51,23 @@ Future<String> loginAction(loginUserEmail, loginUserPassword, context) async {
       infoText = "ログイン成功";
       return infoText;
     } else {
+      // メールアドレスが未認証の場合は画面遷移せずにメッセージを表示する
       infoText = "メールアドレスが未認証です\n確認メールから認証を完了してください";
       return infoText;
     }
-  } catch (e) {
+  } on FirebaseAuthException catch (e) {
     // ログインに失敗した場合
-    infoText = "ログイン失敗\n入力情報に誤りがある可能性があります";
+    if (e.code == 'user-not-found') {
+      // ユーザーが見つからない場合
+      infoText = "該当のユーザーが存在しません";
+    } else if (e.code == 'wrong-password') {
+      // パスワードが間違っている場合
+      infoText = "入力情報に誤りがある可能性があります";
+    }
+    return infoText;
+  } on Exception {
+    // 予期せぬエラーの場合
+    infoText = "処理に失敗しました";
     return infoText;
   }
 }
