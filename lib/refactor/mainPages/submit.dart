@@ -7,15 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_application_1_shift_manager/refactor/actions/request_action.dart';
+import 'package:flutter_application_1_shift_manager/refactor/functions/request_func.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
     as picker;
 import 'package:provider/provider.dart';
-import '../actions/getdata_action.dart';
+import '../functions/getdata_func.dart';
 import '../dialogs/dialog.dart';
-import '../actions/predictSalary_action.dart';
+import '../functions/predictsalary_func.dart';
 
 class SubmitPage extends StatefulWidget {
   @override

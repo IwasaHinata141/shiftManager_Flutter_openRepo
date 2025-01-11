@@ -1,16 +1,9 @@
-import 'dart:ffi';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_application_1_shift_manager/refactor/actions/request_action.dart';
+import 'package:flutter_application_1_shift_manager/refactor/functions/reload_func.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
-import 'package:flutter_application_1_shift_manager/refactor/settingPages/hourly_wage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../actions/getdata_action.dart';
 
 class ReceivePage extends StatefulWidget {
   @override

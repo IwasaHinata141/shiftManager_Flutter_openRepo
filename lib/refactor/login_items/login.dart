@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1_shift_manager/refactor/login_items/sign_up.dart';
 import 'package:flutter_application_1_shift_manager/refactor/login_items/login_action.dart';
-import '../pagewidgets/reset_password.dart';
+import '../mainPages/reset_password.dart';
 
 // ログイン画面
 /* 

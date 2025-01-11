@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import '../screens/main_screen.dart';
 import 'package:provider/provider.dart';
-import '../actions/setting_actions.dart';
+import '../functions/setting_func.dart';
 
 class HourlyWage extends StatefulWidget {
   HourlyWage({

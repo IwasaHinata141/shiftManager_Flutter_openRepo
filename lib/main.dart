@@ -38,11 +38,8 @@ void main() async {
 
   //FCMトークンの取得
   String? fcmToken = await messaging.getToken();
-  initializeDateFormatting().then((_) => runApp(MyApp(
-        fcmToken: fcmToken
-      )));
+  initializeDateFormatting().then((_) => runApp(MyApp(fcmToken: fcmToken)));
 }
-
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
@@ -85,11 +82,19 @@ class MyApp extends StatelessWidget {
                       .doc("userInfo")
                       .update({"token": fcmToken});
                   //Providerを作成、MyHomePageへ移行
-                  return ChangeNotifierProvider(
-                      create: (_) => DataProvider(),
-                      child: MyHomePage(
-                        count: 0,
-                      ));
+                  return FutureBuilder(
+                    future: DataProvider().fetchData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return ChangeNotifierProvider(
+                          create: (_) => DataProvider(),
+                          child: MyHomePage(count: 0),
+                        );
+                      } else {
+                        return CircularProgressIndicator();
+                      }
+                    },
+                  );
                 } else {
                   //メールアドレスの認証が不完全な場合、ログインページにて認証のための手続きを行う
                   return LoginPage();

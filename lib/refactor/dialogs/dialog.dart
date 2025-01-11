@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_application_1_shift_manager/refactor/settingPages/withdraw.dart';
+import 'package:flutter_application_1_shift_manager/refactor/functions/submit_func.dart';
 import '../login_items/login.dart';
 import 'package:flutter/material.dart';
-import '../actions/getdata_action.dart';
 
 class LogoutDialog extends StatelessWidget {
   @override

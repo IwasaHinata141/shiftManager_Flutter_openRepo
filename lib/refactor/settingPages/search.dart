@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/main_screen.dart';
-import 'package:flutter_application_1_shift_manager/refactor/actions/request_action.dart';
+import 'package:flutter_application_1_shift_manager/refactor/functions/request_func.dart';
 import 'package:provider/provider.dart';
 
 class SearchGroup extends StatefulWidget {
@@ -57,7 +57,7 @@ class _SearchGroup extends State<SearchGroup> {
                   onPressed: () async {
                     try {
                       List<String> groupData =
-                          await search(groupId, groupname, adminname);
+                          await search(groupId);
                       groupname = groupData[0];
                       adminname = groupData[1];
                       setState(() {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/pagewidgets/submit.dart';
+import 'package:flutter_application_1_shift_manager/refactor/mainPages/submit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../pagewidgets/receive.dart';
-import '../pagewidgets/settings.dart';
-import '../actions/getdata_action.dart';
+import '../mainPages/receive.dart';
+import '../mainPages/settings.dart';
+import '../functions/getdata_func.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -31,12 +31,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
   void initState() {
     super.initState();
     // データの初期取得
     Provider.of<DataProvider>(context, listen: false).fetchData();
     // データの取得を0.5秒待つ
-    Future.delayed(Duration(milliseconds: 500));
+    Future.delayed(const Duration(milliseconds: 1000));
   }
 
    // bottomNavigationBarのページのリスト
@@ -76,40 +77,54 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 
-/// Firestoreからユーザーの情報を取得し利用する為のProveider
-/// 
+/// Firestoreからユーザーの情報を取得し利用する為のProvider
 /*
-機能(取得する情報)：
-シフトデータ、
+機能：
+事前情報の取得、情報を他widgetで呼び出せるようにすること、
+リロードで呼び出されたときには情報を再取得する
 */
 
 class DataProvider extends ChangeNotifier {
   
-  // データを格納する変数
+  /// データを格納する変数の定義
+  // シフトデータ（確定済み）
   Map<String, List<String>> shiftdata = {};
+  // 募集中シフトの期間
   List<String> duration = [];
+  // durationの数に対応したリスト（シフト提出画面でシフトの開始時間のリストを格納する）
   List<String> startTimeList = [];
+  // durationの数に対応したリスト（シフト提出画面でシフトの終了時間のリストを格納する）
   List<String> endTimeList = [];
+  // シフトが募集中か停止中かの真偽値
   bool status=true;
+  // ユーザーのメールアドレス
   String userEmail = "";
+  // グループID
   List groupId = [];
+  // 当月の賃金の情報(予測給与、出勤日、労働時間)
   Map<String, dynamic> salaryInfo = {};
-  List timeList = [];
-  List salaryList = [];
-  String totalWorkTime="";
+  // 生年月日（初期値では一時的に現在の日付データを格納）
   DateTime birthday=DateTime.now();
+  // ユーザー名
   String username ="";
+  // 時給データ
   Map<String, dynamic> hourlyWage ={};
+  // グループ名のリスト
   List groupName=[];
+  // グループを表示する際のインスタンス
   int groupCount=0;
+  // 当月の合計給与
   String summarySalary = "";
 
-
-  // データを取得する関数 (実際の取得処理をここに記述)
+  // 取得したデータの格納を行う関数
   Future<void> fetchData() async {
+    // Firestoreインスタンス
     final db = FirebaseFirestore.instance;
+    // Firebase authインスタンス
     final auth = FirebaseAuth.instance;
-
+    
+    // getDataは実際にデータを取得する関数
+    // dataListに戻り値のリストを格納し、dataListから変数に格納する
     var dataList = await getData(db);
     shiftdata = dataList[0];
     duration = dataList[1];
@@ -124,10 +139,9 @@ class DataProvider extends ChangeNotifier {
     groupName = dataList[10];
     groupCount = dataList[11];
     summarySalary = dataList[12];
-   
-    
     userEmail = auth.currentUser!.email.toString();
-
-    notifyListeners(); // 状態が変更されたことを通知
+    
+    // 状態が変更されたことを通知
+    notifyListeners(); 
   }
 }
