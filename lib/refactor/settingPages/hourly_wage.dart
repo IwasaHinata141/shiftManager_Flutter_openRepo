@@ -1,13 +1,19 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import '../screens/main_screen.dart';
 import 'package:provider/provider.dart';
 import '../functions/setting_func.dart';
 
+/// 時給設定をするためのページ
+/// 変更前の初期状態では時給は1000円になっている
+/* 
+機能：
+グループごとの時給の変更
+*/
+
+// ignore: must_be_immutable
 class HourlyWage extends StatefulWidget {
-  HourlyWage({
+  HourlyWage({super.key, 
     required this.hourlyWage,
     required this.groupName,
   });
@@ -23,10 +29,9 @@ class _HourlyWage extends State<HourlyWage> {
   String infoText1 = "";
   String newHourlyWage = "";
   Map<String, dynamic> newHourlyWageMap = {};
+  
   @override
   void initState() {
-   
-
     for (int i = 0; i < widget.groupName.length; i++) {
       newHourlyWageMap["${widget.groupName[i]}"] =
           widget.hourlyWage["${widget.groupName[i]}"];
@@ -39,7 +44,7 @@ class _HourlyWage extends State<HourlyWage> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.grey[350],
-        title: Text("時給設定"),
+        title: const Text("時給設定"),
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
           onPressed: () {
@@ -62,7 +67,7 @@ class _HourlyWage extends State<HourlyWage> {
               children: [
                 ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.groupName.length,
                   itemBuilder: (context, index) {
                     return 
@@ -77,11 +82,11 @@ class _HourlyWage extends State<HourlyWage> {
                           Container(
                             height: 58,
                             alignment: Alignment.center,
-                            child: Text(widget.groupName[index]),
-                            padding: EdgeInsets.only(right: 40, left: 40),
-                            decoration: BoxDecoration(
+                            padding: const EdgeInsets.only(right: 40, left: 40),
+                            decoration: const BoxDecoration(
                                 border: Border(
                                     bottom: BorderSide(color: Colors.grey))),
+                            child: Text(widget.groupName[index]),
                           ),
                           Row(
                             children: [
@@ -95,19 +100,19 @@ class _HourlyWage extends State<HourlyWage> {
                                               BorderSide(color: Colors.grey))),
                                   child: Text(
                                       "${widget.hourlyWage["${widget.groupName[index]}"]} 円")),
-                              Spacer(),
+                              const Spacer(),
                               Container(
-                                padding: EdgeInsets.only(left: 10, right: 10),
+                                padding: const EdgeInsets.only(left: 10, right: 10),
                                 height: 58,
                                 width: 200,
                                 alignment: Alignment.center,
                                 child: Row(
                                   children: [
-                                    Container(
+                                    SizedBox(
                                       width: 150,
                                       child: TextField(
                                         keyboardType: TextInputType.number,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           border: UnderlineInputBorder(),
                                         ),
                                         onChanged: (String value) {
@@ -121,11 +126,11 @@ class _HourlyWage extends State<HourlyWage> {
                                         },
                                       ),
                                     ),
-                                    Text("円"),
+                                    const Text("円"),
                                   ],
                                 ),
                               ),
-                              Spacer(),
+                              const Spacer(),
                             ],
                           ),
                         ],
@@ -194,7 +199,7 @@ class _HourlyWage extends State<HourlyWage> {
                   ),
                 ),*/
                 Container(
-                  margin: EdgeInsets.only(top: 50),
+                  margin: const EdgeInsets.only(top: 50),
                   height: 50,
                   width: 100,
                   child: ElevatedButton(
@@ -216,10 +221,10 @@ class _HourlyWage extends State<HourlyWage> {
                           });
                         }
                       },
-                      child: Text("変更")),
+                      child: const Text("変更")),
                 ),
                 Container(
-                  padding: EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 10),
                   child: Text(infoText1),
                 ),
               ],

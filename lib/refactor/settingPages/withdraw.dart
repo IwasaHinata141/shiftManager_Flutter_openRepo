@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1_shift_manager/refactor/dialogs/dialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
-import 'package:flutter_launcher_icons/utils.dart';
 import 'package:provider/provider.dart';
 
-class withdraw extends StatefulWidget {
-  withdraw({required this.groupName, required this.groupId});
+/// グループの退会を行うためのページ
+/// 
+/// グループからの退会はユーザー自身のドキュメントにあるグループIDのリストから
+/// 該当グループのものを削除する処理にしている
+/// そのため、グループから退会してもグループのドキュメントに存在するメンバーリスト
+/// は変更されない。
+/// したがって、退会後にグループの管理者がshiftManager Consoleから手動で削除する必要がある
+/// 
+/*
+機能：
+グループ退会のダイアログの起動
+*/
+
+// ignore: must_be_immutable
+class Withdraw extends StatefulWidget {
+  Withdraw({required this.groupName, required this.groupId});
   List groupName = [];
   List groupId = [];
   @override
-  State<withdraw> createState() => _withdrawGroup();
+  State<Withdraw> createState() => _WithdrawGroup();
 }
 
-class _withdrawGroup extends State<withdraw> {
+class _WithdrawGroup extends State<Withdraw> {
   String infoText = "";
   Map<String, dynamic> newGroupIdMap = {};
   int? _groupValue;
@@ -40,7 +53,7 @@ class _withdrawGroup extends State<withdraw> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.grey[350],
-        title: Text(
+        title: const Text(
           "グループを退会",
           style: TextStyle(fontSize: 15),
         ),
@@ -66,11 +79,11 @@ class _withdrawGroup extends State<withdraw> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
-                padding: EdgeInsets.all(10),
+                margin: const EdgeInsets.only(left: 20, right: 20),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.all(Radius.circular(10))),
+                    borderRadius: const BorderRadius.all(Radius.circular(10))),
                 child: Text(infoText),
               ),
               widget.groupId[0] != "no data"
@@ -81,32 +94,28 @@ class _withdrawGroup extends State<withdraw> {
                         children: List.generate(
                           // 配列の要素数だけRadioListTileを生成
                           widget.groupName.length,
-                          (num) => RadioListTile(
-                            value: num, // 値をインデックスにする
+                          (index) => RadioListTile(
+                            value: index, // 値をインデックスにする
                             groupValue: _groupValue,
                             title:
-                                Text(widget.groupName[num]), // テキストをリストの要素から取得
+                                Text(widget.groupName[index]), // テキストをリストの要素から取得
                             onChanged: (int? value) async {
                               setState(() {
                                 _groupValue = value!;
-                                selectedGroupId = widget.groupId[num];
-                                print(selectedGroupId);
-                                print(newGroupIdMap);
+                                selectedGroupId = widget.groupId[index];
                               });
                             },
                           ),
                         ),
                       ),
                     )
-                  : SizedBox(),
+                  : const SizedBox(),
               Container(
-                margin: EdgeInsets.only(top: 30),
+                margin: const EdgeInsets.only(top: 30),
                 height: 45,
                 child: widget.groupId[0] != "no data"
                     ? ElevatedButton(
                         onPressed: () async {
-                          print(newGroupIdMap.length == 1 &&
-                              newGroupIdMap["1"] == selectedGroupId);
                           if (newGroupIdMap.length == 1 &&
                               newGroupIdMap["1"] == selectedGroupId) {
                             newGroupIdMap["1"] = "no data";
@@ -116,30 +125,25 @@ class _withdrawGroup extends State<withdraw> {
 
                               if (newGroupIdMap["${i + 1}"] ==
                                   selectedGroupId) {
-                                print(i + 1);
-
                                 for (int j = i + 1;
                                     j < newGroupIdMap.length;
                                     j++) {
-                                  newGroupIdMap["${j}"] =
+                                  newGroupIdMap["$j"] =
                                       newGroupIdMap["${j + 1}"];
                                 }
                                 newGroupIdMap.remove("${newGroupIdMap.length}");
                               }
                             }
                           }
-
-                          print(newGroupIdMap);
-
                           await showDialog<void>(
                               context: context,
                               builder: (_) {
-                                return withdrawDialog(
+                                return WithdrawDialog(
                                   newGroupId: newGroupIdMap,
                                 );
                               });
-
                           Navigator.pushReplacement(
+                              // ignore: use_build_context_synchronously
                               context,
                               MaterialPageRoute(
                                   builder: (context) => ChangeNotifierProvider(
@@ -148,8 +152,8 @@ class _withdrawGroup extends State<withdraw> {
                                         count: 2,
                                       ))));
                         },
-                        child: Text("退会する"))
-                    : SizedBox(),
+                        child: const Text("退会する"))
+                    : const SizedBox(),
               ),
             ],
           ),

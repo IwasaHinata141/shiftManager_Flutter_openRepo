@@ -109,7 +109,12 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
           // シフトデータを1つずつ成形し、戻り値の変数に格納
           await Future.forEach(valueData.entries, (entry) {
             var list = ["${groupName}  ${entry.value.toString()}"];
-            shift["${entry.key}"] = list;
+            if (shift["${entry.key}"] == null) {
+              shift["${entry.key}"] = list;
+            } else {
+              final List<String> previousData = shift["${entry.key}"]!;
+              previousData.add(list[0]);
+            }
           });
         }
       }
@@ -134,7 +139,12 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
       // シフトデータを1つずつ成形し、戻り値の変数に格納
       await Future.forEach(valueData.entries, (entry) {
         var list = ["${groupName}  ${entry.value.toString()}"];
-        shift["${entry.key}"] = list;
+        if (shift["${entry.key}"] == null) {
+          shift["${entry.key}"] = list;
+        } else {
+          final List<String> previousData = shift["${entry.key}"]!;
+          previousData.add(list[0]);
+        }
       });
     }
     // 合計給与にカンマを打つためのフォーマット
@@ -368,5 +378,3 @@ Future<List> getGroupName(groupId, db) async {
   }
   return groupName;
 }
-
-

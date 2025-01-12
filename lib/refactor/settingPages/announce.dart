@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import '../screens/main_screen.dart';
 import 'package:provider/provider.dart';
 
+/// 運営からのお知らせを表示するためのページ
+/// 製作中
+
 class Announce extends StatefulWidget {
+  const Announce({super.key});
+
   @override
   State<Announce> createState() => _Announce();
 }
@@ -15,7 +20,7 @@ class _Announce extends State<Announce> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("お知らせ"),
+        title: const Text("お知らせ"),
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
           onPressed: () {
@@ -42,7 +47,7 @@ class _Announce extends State<Announce> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: Colors.grey)),
-                  child: Column(
+                  child: const Column(
                     children: [
                       Row(
                         children: [

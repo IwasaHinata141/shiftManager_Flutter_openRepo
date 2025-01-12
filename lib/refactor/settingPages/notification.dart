@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 import '../screens/main_screen.dart';
 import 'package:provider/provider.dart';
 
+/// 通知設定をするためのページ
+/// 今後、グループごとにメッセージを受け取れる様にしていく予定
+/// 製作中
+
 class NotificationSetting extends StatefulWidget {
+  const NotificationSetting({super.key});
+
   @override
   State<NotificationSetting> createState() => _NotificationSetting();
 }
 
 class _NotificationSetting extends State<NotificationSetting> {
-  var userId;
+  var userId="";
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +34,10 @@ class _NotificationSetting extends State<NotificationSetting> {
           },
         ),
       ),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
           ),
         ),
       ),

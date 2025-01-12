@@ -4,15 +4,24 @@ import 'package:flutter_application_1_shift_manager/refactor/settingPages/withdr
 import 'package:provider/provider.dart';
 import '../dialogs/dialog.dart';
 import '../settingPages/search.dart';
-import '../settingPages/announce.dart';
 import '../settingPages/edit_user_info.dart';
 import '../settingPages/hourly_wage.dart';
-import '../settingPages/notification.dart';
+// import '../settingPages/notification.dart';
+// import '../settingPages/announce.dart';
 
-
+/// 設定ページ（メイン画面インデックス２）
+/// ユーザー情報編集やグループへの参加を行うためページへアクセスするためのメインページ
+/// ログアウトもこのページから行う
+/* 
+機能：
+ユーザー情報編集画面への遷移、グループの参加・退会画面への遷移、
+時給設定画面への遷移、ログアウトのダイアログの起動
+今後追加したい機能：
+通知設定、運営からのお知らせページ
+*/
 
 class Setting extends StatelessWidget {
-  Setting({super.key});
+  const Setting({super.key});
   
   @override
   Widget build(BuildContext context) {
@@ -35,11 +44,11 @@ class Setting extends StatelessWidget {
                   children: [
                     Container(
                       height: 70,
-                      padding: EdgeInsets.only(left: 10),
+                      padding: const EdgeInsets.only(left: 10),
                       child: CircleAvatar(
                       backgroundColor: Colors.grey[200],
-                      child: Icon(Icons.person,size: 65,color: Colors.grey,),
                         radius: 40,
+                      child: const Icon(Icons.person,size: 65,color: Colors.grey,),
                       ),
                     ),
                     Padding(
@@ -47,10 +56,8 @@ class Setting extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(child: Text(dataProvider.username),),
-                          Container(
-                            child: Text(dataProvider.userEmail),
-                          ),
+                          Text(dataProvider.username),
+                          Text(dataProvider.userEmail),
                         ],
                       ),
                     ),
@@ -59,11 +66,11 @@ class Setting extends StatelessWidget {
               ),
 
               Container(
-                padding: EdgeInsets.only(left: 15),
+                padding: const EdgeInsets.only(left: 15),
                 height: 40,
                 alignment: Alignment.centerLeft,
-                color: Color.fromARGB(255, 228, 228, 228),
-                child: Row(
+                color: const Color.fromARGB(255, 228, 228, 228),
+                child: const Row(
                   children: [
                     Icon(Icons.settings),
                     Padding(padding: EdgeInsets.only(right: 10)),
@@ -71,23 +78,23 @@ class Setting extends StatelessWidget {
                   ],
                 ),
               ),
-              editUserInfo(
+              EditUser(
                 userEmail: dataProvider.userEmail,
                 birthday: dataProvider.birthday,
                 username: dataProvider.username,
               ),
-              editHourlyWage(
+              EditHourlyWage(
                 hourlyWage: dataProvider.hourlyWage,
                 groupName: dataProvider.groupName,
               ),
 
-              ///edtinotification(),
+              ///Edtinotification(),
               Container(
-                padding: EdgeInsets.only(left: 15),
+                padding: const EdgeInsets.only(left: 15),
                 height: 40,
                 alignment: Alignment.centerLeft,
-                color: Color.fromARGB(255, 228, 228, 228),
-                child: Row(
+                color: const Color.fromARGB(255, 228, 228, 228),
+                child: const Row(
                   children: [
                     Icon(Icons.groups),
                     Padding(padding: EdgeInsets.only(right: 10)),
@@ -95,14 +102,14 @@ class Setting extends StatelessWidget {
                   ],
                 ),
               ),
-              entryGroup(),
-              withdrawGroup(groupName: dataProvider.groupName, groupId: dataProvider.groupId,),
+              const EntryGroup(),
+              WithdrawGroup(groupName: dataProvider.groupName, groupId: dataProvider.groupId,),
               Container(
-                padding: EdgeInsets.only(left: 15),
+                padding: const EdgeInsets.only(left: 15),
                 height: 40,
                 alignment: Alignment.centerLeft,
-                color: Color.fromARGB(255, 228, 228, 228),
-                child: Row(
+                color: const Color.fromARGB(255, 228, 228, 228),
+                child: const Row(
                   children: [
                     Icon(Icons.more_horiz),
                     Padding(padding: EdgeInsets.only(right: 10)),
@@ -111,7 +118,7 @@ class Setting extends StatelessWidget {
                 ),
               ),
 
-              logoutButton(),
+              const LogoutButton(),
             ],
           ),
         );
@@ -120,8 +127,8 @@ class Setting extends StatelessWidget {
   }
 }
 
-class entryGroup extends StatelessWidget {
-  const entryGroup({
+class EntryGroup extends StatelessWidget {
+  const EntryGroup({
     super.key,
   });
 
@@ -138,19 +145,20 @@ class entryGroup extends StatelessWidget {
             MaterialPageRoute(builder: (context) => SearchGroup()),
           );
         },
-        child: Text("グループに参加する"),
         style: ElevatedButton.styleFrom(
             alignment: Alignment.centerLeft,
             backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
+        child: const Text("グループに参加する"),
       ),
     );
   }
 }
 
-class withdrawGroup extends StatelessWidget {
-  withdrawGroup({
+// ignore: must_be_immutable
+class WithdrawGroup extends StatelessWidget {
+  WithdrawGroup({
     super.key,
     required this.groupName,
     required this.groupId,
@@ -169,24 +177,25 @@ class withdrawGroup extends StatelessWidget {
           await context.read<DataProvider>().fetchData();
           
           Navigator.pushReplacement(
+            // ignore: use_build_context_synchronously
             context,
-            MaterialPageRoute(builder: (context) => withdraw(groupName: groupName, groupId: groupId,)),
+            MaterialPageRoute(builder: (context) => Withdraw(groupName: groupName, groupId: groupId,)),
           );
           
         },
-        child: Text("グループを退会する"),
         style: ElevatedButton.styleFrom(
             alignment: Alignment.centerLeft,
             backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
+        child: const Text("グループを退会する"),
       ),
     );
   }
 }
-
-class edtinotification extends StatelessWidget {
-  const edtinotification({
+/*
+class Edtinotification extends StatelessWidget {
+  const Edtinotification({
     super.key,
   });
 
@@ -212,8 +221,9 @@ class edtinotification extends StatelessWidget {
   }
 }
 
-class announcement extends StatelessWidget {
-  const announcement({
+
+class Announcement extends StatelessWidget {
+  const Announcement({
     super.key,
   });
 
@@ -238,9 +248,10 @@ class announcement extends StatelessWidget {
     );
   }
 }
-
-class editHourlyWage extends StatelessWidget {
-  editHourlyWage({
+*/
+// ignore: must_be_immutable
+class EditHourlyWage extends StatelessWidget {
+  EditHourlyWage({
     super.key,
     required this.hourlyWage,
     required this.groupName,
@@ -264,19 +275,20 @@ class editHourlyWage extends StatelessWidget {
                         groupName: groupName,
                       )));
         },
-        child: Text("時給設定"),
         style: ElevatedButton.styleFrom(
             alignment: Alignment.centerLeft,
             backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
+        child: const Text("時給設定"),
       ),
     );
   }
 }
 
-class editUserInfo extends StatelessWidget {
-  editUserInfo(
+// ignore: must_be_immutable
+class EditUser extends StatelessWidget {
+  EditUser(
       {super.key,
       required this.userEmail,
       required this.birthday,
@@ -302,19 +314,19 @@ class editUserInfo extends StatelessWidget {
                         username: username,
                       )));
         },
-        child: const Text("ユーザ情報編集"),
         style: ElevatedButton.styleFrom(
             alignment: Alignment.centerLeft,
             backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
+        child: const Text("ユーザ情報編集"),
       ),
     );
   }
 }
 
-class logoutButton extends StatelessWidget {
-  const logoutButton({
+class LogoutButton extends StatelessWidget {
+  const LogoutButton({
     super.key,
   });
 

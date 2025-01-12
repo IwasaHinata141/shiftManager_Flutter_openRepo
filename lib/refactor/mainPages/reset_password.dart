@@ -12,6 +12,8 @@ import 'package:flutter_application_1_shift_manager/refactor/login_items/login.d
 */
 
 class ResetPassword extends StatefulWidget {
+  const ResetPassword({super.key});
+
   @override
   State<ResetPassword> createState() => _ResetPassword();
 }
@@ -25,12 +27,14 @@ class _ResetPassword extends State<ResetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // アップバー（ページ上部）
       appBar: AppBar(
         backgroundColor: Colors.grey[350],
         centerTitle: true,
-        title: Text("パスワード再設定"),
+        title: const Text("パスワード再設定"),
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
+          // ログインページへ戻る
           onPressed: () {
             Navigator.pushReplacement(
                 context, MaterialPageRoute(builder: (context) => LoginPage()));
@@ -53,30 +57,30 @@ class _ResetPassword extends State<ResetPassword> {
                     children: [
                       // パスワード再設定の手順の解説の文章
                       Container(
-                        padding: EdgeInsets.all(10),
-                        child: Text(
+                        padding: const EdgeInsets.all(10),
+                        child: const Text(
                             "パスワードを忘れてしまった場合、パスワードの再設定が必要になります\n手順\n①アカウントのメールアドレスに認証メールを送信\n②認証メールのリンクにアクセス\n③リンク先で新しいパスワードを設定\n④shiftmanagerアプリでログイン"),
                       ),
-                      Container(
+                      SizedBox(
                         height: 30,
                         width: double.infinity,
                         child: Container(
-                          padding: EdgeInsets.only(left: 20),
+                          padding: const EdgeInsets.only(left: 20),
                           alignment: Alignment.bottomLeft,
                           height: 30,
                           width: 100,
-                          child: Text("メールアドレス"),
+                          child: const Text("メールアドレス"),
                         ),
                       ),
                       // メールアドレスの入力フォーム
                       Container(
-                        padding: EdgeInsets.only(right: 10, left: 10),
+                        padding: const EdgeInsets.only(right: 10, left: 10),
                         height: 50,
                         width: double.infinity,
                         child: Container(
-                          padding: EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(5),
                           child: TextField(
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               border: UnderlineInputBorder(),
                             ),
                             onChanged: (String value) {
@@ -89,7 +93,7 @@ class _ResetPassword extends State<ResetPassword> {
                       ),
                       // 認証メールの送信の起動ボタン
                       Container(
-                        padding: EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(top: 10),
                         height: 50,
                         width: 200,
                         child: ElevatedButton(
@@ -134,12 +138,12 @@ class _ResetPassword extends State<ResetPassword> {
                               });
                             }
                           },
-                          child: Text("認証メールを送信"),
+                          child: const Text("認証メールを送信"),
                         ),
                       ),
                       // メッセージテキストの表示
                       Container(
-                        padding: EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.only(top: 10),
                         child: Text(infoText),
                       ),
                     ],

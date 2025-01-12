@@ -1,13 +1,4 @@
-import 'dart:math';
-import 'dart:ui';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/semantics.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_application_1_shift_manager/refactor/functions/request_func.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
@@ -17,9 +8,21 @@ import '../functions/getdata_func.dart';
 import '../dialogs/dialog.dart';
 import '../functions/predictsalary_func.dart';
 
+/// シフト提出画面（メイン画面インデックス１）
+/// 募集中のシフトに対して希望を入力し送信するページ
+/// 募集期間外の場合は入力不可
+/* 
+機能：
+シフトの入力（datetime_pickerを使用）、
+予測給与の表示、表示するグループの切換、
+募集状況の狂信、シフトの送信のダイアログの起動
+*/
+
 class SubmitPage extends StatefulWidget {
+  const SubmitPage({super.key});
+
   @override
-  _SubmitPageState createState() => _SubmitPageState();
+  State<SubmitPage> createState() => _SubmitPageState();
 }
 
 class _SubmitPageState extends State<SubmitPage> {
@@ -49,7 +52,7 @@ class _SubmitPageState extends State<SubmitPage> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text(
+          title: const Text(
             "シフト提出",
             style: TextStyle(fontSize: 15),
           ),
@@ -72,36 +75,34 @@ class _SubmitPageState extends State<SubmitPage> {
                                       children: List.generate(
                                         // 配列の要素数だけRadioListTileを生成
                                         dataProvider.groupName.length,
-                                        (num) => RadioListTile(
-                                          value: num, // 値をインデックスにする
+                                        (index) => RadioListTile(
+                                          value: index, // 値をインデックスにする
                                           groupValue: _groupValue,
                                           title: Text(dataProvider.groupName[
-                                              num]), // テキストをリストの要素から取得
+                                              index]), // テキストをリストの要素から取得
                                           onChanged: (int? value) async {
                                             final newstatus = await getStatus(
-                                                dataProvider.groupId[num]);
+                                                dataProvider.groupId[index]);
                                             final newduration =
                                                 await getDuration(
-                                                    dataProvider.groupId[num]);
+                                                    dataProvider.groupId[index]);
                                             final newstartTimeList =
                                                 await generateEmptyList(
                                                     newduration.length);
-                                            print(newstartTimeList);
                                             final newendTimeList =
                                                 await generateEmptyList(
                                                     newduration.length);
-                                            print(newendTimeList);
 
                                             setState(() {
                                               _groupValue = value!;
                                               groupName =
-                                                  dataProvider.groupName[num];
-                                              groupId = dataProvider.groupId[num];
+                                                  dataProvider.groupName[index];
+                                              groupId = dataProvider.groupId[index];
                                               status = newstatus;
                                               duration = newduration;
                                               startTimeList = newstartTimeList;
                                               endTimeList = newendTimeList;
-                                              hourlyWage = dataProvider.hourlyWage["${groupName}"];
+                                              hourlyWage = dataProvider.hourlyWage[groupName];
                                             });
                                           },
                                         ),
@@ -136,7 +137,7 @@ class _SubmitPageState extends State<SubmitPage> {
               );
             }),
           ],
-          backgroundColor: Color.fromARGB(255, 228, 228, 228),
+          backgroundColor: const Color.fromARGB(255, 228, 228, 228),
         ),
         body: Consumer<DataProvider>(builder: (context, dataProvider, child) {
           return mainSubmitPage(
@@ -165,36 +166,32 @@ class _SubmitPageState extends State<SubmitPage> {
                 width: double.infinity,
                 color: const Color.fromARGB(255, 71, 69, 62),
                 child: groupName[0] !="no data" ?
-                Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,   
-                    children: [
-                      Text(
-                        "${reloadedData["groupName"] ?? groupName[0]}は",
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      Text(
-                        "募集期間中ではありません",
-                        style: TextStyle(color: Colors.white70),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ):Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,   
-                    children: [
-                      Text(
-                        "グループに参加していません",
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                      Text(
-                        "マイページからグループに参加してください",
-                        style: TextStyle(color: Colors.white70),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,   
+                  children: [
+                    Text(
+                      "${reloadedData["groupName"] ?? groupName[0]}は",
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    const Text(
+                      "募集期間中ではありません",
+                      style: TextStyle(color: Colors.white70),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ):const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,   
+                  children: [
+                    Text(
+                      "グループに参加していません",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    Text(
+                      "マイページからグループに参加してください",
+                      style: TextStyle(color: Colors.white70),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             )
@@ -206,7 +203,7 @@ class _SubmitPageState extends State<SubmitPage> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              Container(
+              SizedBox(
                   height: 140,
 
                   ///----------------------------///
@@ -227,39 +224,37 @@ class _SubmitPageState extends State<SubmitPage> {
                             style: TextStyle(fontSize: 17, color: Colors.white),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Text("${reloadedData["groupName"] ?? groupName[0]}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 15,
                               color: Colors.black,
                             )),
-                        Text("勤務時間${totalWorkTime}時間 × 時給${hourlyWage}円",
-                            style: TextStyle(
+                        Text("勤務時間$totalWorkTime時間 × 時給$hourlyWage円",
+                            style: const TextStyle(
                               fontSize: 15,
                               color: Colors.black,
                             )),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                             alignment: Alignment.bottomRight,
                             padding:
-                                EdgeInsets.only(top: 5, right: 40, bottom: 5),
-                            child: Container(
-                              child: Row(
-                                children: [
-                                  Spacer(),
-                                  Text("=",
-                                      style: TextStyle(
-                                          fontSize: 20, color: Colors.black)),
-                                  Text(
-                                    "${predictSalary}円",
+                                const EdgeInsets.only(top: 5, right: 40, bottom: 5),
+                            child: Row(
+                              children: [
+                                const Spacer(),
+                                const Text("=",
                                     style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 25),
-                                  ),
-                                ],
-                              ),
+                                        fontSize: 20, color: Colors.black)),
+                                Text(
+                                  "$predictSalary円",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25),
+                                ),
+                              ],
                             )),
-                        Spacer()
+                        const Spacer()
                       ],
                     ),
                   )),
@@ -302,12 +297,10 @@ class _SubmitPageState extends State<SubmitPage> {
                                 picker.DatePicker.showTimePicker(context,
                                     showTitleActions: true,
                                     showSecondsColumn: false, onCancel: () {
-                                  print("cancel");
                                   setState(() {
                                     startTimeList[index] = "-";
                                   });
                                 }, onConfirm: (date) {
-                                  print(date);
                                   setState(() {
                                     startTimeList[index] =
                                         "${date.hour.toString()}:${date.minute.toString().padLeft(2, '0')}";
@@ -330,7 +323,7 @@ class _SubmitPageState extends State<SubmitPage> {
                         Container(
                           width: 30,
                           alignment: Alignment.center,
-                          child: Text("-"),
+                          child: const Text("-"),
                         ),
                         Expanded(
                           child: TextButton(
@@ -345,12 +338,10 @@ class _SubmitPageState extends State<SubmitPage> {
                                 picker.DatePicker.showTimePicker(context,
                                     showTitleActions: true,
                                     showSecondsColumn: false, onCancel: () {
-                                  print("cancel");
                                   setState(() {
                                     endTimeList[index] = "-";
                                   });
                                 }, onConfirm: (date) {
-                                  print(date);
                                   setState(() {
                                     endTimeList[index] =
                                         "${date.hour.toString()}:${date.minute.toString().padLeft(2, '0')}";
@@ -372,7 +363,7 @@ class _SubmitPageState extends State<SubmitPage> {
                         ),
                         Container(
                           width: 90,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               border:
                                   Border(left: BorderSide(color: Colors.grey))),
                           child: Column(
@@ -385,16 +376,16 @@ class _SubmitPageState extends State<SubmitPage> {
                                   ),
                                   height: 25,
                                   child: Text(
-                                      "${(timeList["${index}"] ?? "0")}h")),
+                                      "${(timeList["$index"] ?? "0")}h")),
                               Container(
                                   alignment: Alignment.bottomLeft,
-                                  padding: EdgeInsets.only(left: 10),
+                                  padding: const EdgeInsets.only(left: 10),
                                   height: 43,
                                   child: Row(
                                     children: [
-                                      Text("¥"),
-                                      Text("${(salaryList["${index}"] ?? "0")}",
-                                          style: TextStyle(
+                                      const Text("¥"),
+                                      Text("${(salaryList["$index"] ?? "0")}",
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 18)),
                                     ],
@@ -413,21 +404,17 @@ class _SubmitPageState extends State<SubmitPage> {
               ),
               Container(
                 height: 50,
-                color: Color.fromARGB(255, 228, 228, 228),
+                color: const Color.fromARGB(255, 228, 228, 228),
               ),
               Container(
                 padding: const EdgeInsets.only(bottom: 15),
                 width: double.infinity,
                 height: 100,
                 child: ElevatedButton(
-                  child: Text(
-                    "送信",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(0)),
-                    backgroundColor: Color.fromARGB(255, 54, 146, 57),
+                    backgroundColor: const Color.fromARGB(255, 54, 146, 57),
                   ),
                   onPressed: () async {
                     showDialog<bool>(
@@ -441,6 +428,10 @@ class _SubmitPageState extends State<SubmitPage> {
                           );
                         });
                   },
+                  child: const Text(
+                    "送信",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
                 ),
               ),
             ],
