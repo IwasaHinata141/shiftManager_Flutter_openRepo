@@ -16,9 +16,11 @@ class HourlyWage extends StatefulWidget {
   HourlyWage({super.key, 
     required this.hourlyWage,
     required this.groupName,
+    required this.groupId
   });
   Map<String, dynamic> hourlyWage = {};
   List groupName = [];
+  List groupId = [];
 
   @override
   State<HourlyWage> createState() => _HourlyWage();
@@ -32,9 +34,9 @@ class _HourlyWage extends State<HourlyWage> {
   
   @override
   void initState() {
-    for (int i = 0; i < widget.groupName.length; i++) {
-      newHourlyWageMap["${widget.groupName[i]}"] =
-          widget.hourlyWage["${widget.groupName[i]}"];
+    for (int i = 0; i < widget.groupId.length; i++) {
+      newHourlyWageMap["${widget.groupId[i]}"] =
+          widget.hourlyWage["${widget.groupId[i]}"];
     }
   }
 
@@ -68,7 +70,7 @@ class _HourlyWage extends State<HourlyWage> {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.groupName.length,
+                  itemCount: widget.groupId.length,
                   itemBuilder: (context, index) {
                     return 
                     Container(
@@ -99,7 +101,7 @@ class _HourlyWage extends State<HourlyWage> {
                                           right:
                                               BorderSide(color: Colors.grey))),
                                   child: Text(
-                                      "${widget.hourlyWage["${widget.groupName[index]}"]} 円")),
+                                      "${widget.hourlyWage["${widget.groupId[index]}"]} 円")),
                               const Spacer(),
                               Container(
                                 padding: const EdgeInsets.only(left: 10, right: 10),
@@ -120,7 +122,7 @@ class _HourlyWage extends State<HourlyWage> {
                                             newHourlyWage = value;
 
                                             newHourlyWageMap[
-                                                    "${widget.groupName[index]}"] =
+                                                    "${widget.groupId[index]}"] =
                                                 int.parse(newHourlyWage);
                                           });
                                         },
@@ -138,66 +140,6 @@ class _HourlyWage extends State<HourlyWage> {
                     );
                   },
                 ),
-                /*
-                Container(
-                  height: 120,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey)),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 58,
-                        alignment: Alignment.center,
-                        child: Text(widget.groupName[0]),
-                        padding: EdgeInsets.only(right: 40, left: 40),
-                        decoration: BoxDecoration(
-                            border:
-                                Border(bottom: BorderSide(color: Colors.grey))),
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                              width: 130,
-                              height: 58,
-                              alignment: Alignment.center,
-                              decoration: const BoxDecoration(
-                                  border: Border(
-                                      right: BorderSide(color: Colors.grey))),
-                              child: Text("${widget.hourlyWage} 円")),
-                          Spacer(),
-                          Container(
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            height: 58,
-                            width: 200,
-                            alignment: Alignment.center,
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 150,
-                                  child: TextField(
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                      border: UnderlineInputBorder(),
-                                    ),
-                                    onChanged: (String value) {
-                                      setState(() {
-                                        newHourlyWage = value;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                Text("円"),
-                              ],
-                            ),
-                          ),
-                          Spacer(),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),*/
                 Container(
                   margin: const EdgeInsets.only(top: 50),
                   height: 50,

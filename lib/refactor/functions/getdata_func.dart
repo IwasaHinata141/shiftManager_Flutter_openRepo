@@ -21,8 +21,10 @@ Future<List> getData(db) async {
   final hourlyWage = userInfo[3];
   // グループIDの数から所属グループの数を取得
   final int groupCount = groupId.length;
+  // グループ名のリストを取得
+  final groupNameMap = await getGroupNameMap(db,userId);
   // シフトデータと給与金額を取得する関数
-  final shiftdata = await getMyShift(userId, db, hourlyWage);
+  final shiftdata = await getMyShift(userId, db, hourlyWage, groupNameMap);
   // 募集中のシフトの期間を取得
   final duration = await getDuration(groupId[0]);
   // durationの数に対応したリスト（シフト提出画面でシフトの開始時間のリストを格納する）を取得
@@ -32,11 +34,13 @@ Future<List> getData(db) async {
   // シフトが募集中か停止中かの真偽値を取得
   final bool status = await getStatus(groupId[0]);
   // 所属グループの名前をリストで取得
-  final groupName = await getGroupName(groupId, db);
+  final groupName = await getGroupName(groupId, db,groupNameMap);
   // 給与のデータを取得
   final Map<String, dynamic> salaryInfo = shiftdata[1]["salaryInfo"];
   // 複数のグループでの給与の合計金額を取得
   final summarySalary = shiftdata[2];
+  // 加工前シフトデータ（カレンダーページの変更時に使用する）
+  final rowShift = shiftdata[3];
 
   // 取得した値をリストにまとめて返す
   return [
@@ -53,13 +57,33 @@ Future<List> getData(db) async {
     groupName,
     groupCount,
     summarySalary,
+    rowShift,
   ];
 }
 
 /// ---------以下はgetData()で使用した関数--------- ///
+/// グループ名とグループIDの紐づけを行っているデータを取得する関数
+/// groupNameListはキーがグループID、値がグループ名
+Future<Map<String,dynamic>> getGroupNameMap(db,userId) async{
+  // 戻り値を格納する変数
+  Map<String, dynamic> groupNameMap = {};
+  // Firestoreへの参照
+  final docRefGroupName = db
+      .collection("Users")
+      .doc(userId)
+      .collection("MyInfo")
+      .doc("userInfo");
+  // データの取得と変数への格納
+   await docRefGroupName.get().then((DocumentSnapshot doc) async {
+    final data = doc.data() as Map<String, dynamic>;
+    groupNameMap = data["groupNameList"];
+   });
+  print("groupNameList:${groupNameMap}");
+  return groupNameMap;
+}
 
 // シフトデータの取得、給与の計算を行う関数
-Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
+Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
   // シフトデータ
   Map<String, List<String>> shift = {};
   // 合計給与
@@ -70,6 +94,8 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
   Map<String, dynamic> calculatedDataMap = {};
   // 合計給与を文字列に変換した後に代入する変数
   String summarySalaryText = "";
+  // 加工前のシフトデータを格納する
+  Map<String, dynamic> rowshift = {};
   // Firestoreのシフトデータへの参照
   final doc_ref_shift = db
       .collection("Users")
@@ -79,35 +105,37 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
   // 参照からのデータをMap型で取得
   await doc_ref_shift.get().then((DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
+    rowshift = data;
     // シフトデータはグループごとに分けているため、要素数で所属グループ数を取得できる
     // 所属グループ数が1つか、それ以外かで分岐
     if (data.length != 1) {
       // 所属グループが1つではない場合
-      // keyは所属グループのグループ名になっている
+      // keyは所属グループのグループIDになっている
       Iterable<String> keys = data.keys;
       // グループごとに給与の計算を行うための繰り返し処理
       for (String key in keys) {
         // グループ名を格納
-        final groupName = key;
+        final groupId = key;
         // グループ名がno dataの場合処理を省く
         /// no data はグループに所属していない最初期のエラー回避のために設定しているグループ名
         /// no data の情報は表示する必要がないため、処理を省いている
-        if (groupName != "no data") {
+        if (groupId != "no data") {
           // シフトデータを取得する(valueDataの構造(例): {2000/01/01:"12:00-18:00"})
-          Map<String, dynamic> valueData = data["${groupName}"];
+          Map<String, dynamic> valueData = data["${groupId}"];
           // 時給とシフトデータを基に給与、労働時間、出勤日数を計算する
           Map<String, dynamic> calculatedDataInstance =
-              await calculateSalary(hourlyWage, groupName, valueData);
+              await calculateSalary(hourlyWage, groupId, valueData);
           // 全てのグループの結果をまとめるために変数に格納
           calculatedDataMap.addAll(calculatedDataInstance);
           // 現在のグループの当月の給与を格納
-          int salary = calculatedDataInstance["${groupName}"]["totalsalary"];
+          int salary = calculatedDataInstance["${groupId}"]["totalsalary"];
           // 当月の全てのグループからの給与を算出するために合計する
           summarySalary = summarySalary + salary;
           // 結果を戻り値の変数に格納
           salaryInfo["salaryInfo"] = calculatedDataMap;
           // シフトデータを1つずつ成形し、戻り値の変数に格納
           await Future.forEach(valueData.entries, (entry) {
+            var groupName = groupNameMap[groupId];
             var list = ["${groupName}  ${entry.value.toString()}"];
             if (shift["${entry.key}"] == null) {
               shift["${entry.key}"] = list;
@@ -121,23 +149,24 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
     } else {
       /// 所属しているグループが1つの場合
       String newkey = "";
-      // グループ名の取得・格納
+      // グループIDの取得・格納
       Iterable<String> keys = data.keys;
       for (String key in keys) {
         newkey = key;
       }
-      final groupName = newkey;
+      final groupId = newkey;
       // シフトデータを取得する(valueDataの構造(例): {2000/01/01:"12:00-18:00"})
-      Map<String, dynamic> valueData = data["${groupName}"];
+      Map<String, dynamic> valueData = data["${groupId}"];
       // 時給とシフトデータを基に給与、労働時間、出勤日数を計算する
       Map<String, dynamic> calculatedDataInstance =
-          await calculateSalary(hourlyWage, groupName, valueData);
+          await calculateSalary(hourlyWage, groupId, valueData);
       // 全てのグループの結果をまとめるために変数に格納
       calculatedDataMap.addAll(calculatedDataInstance);
       // 結果を戻り値の変数に格納
       salaryInfo["salaryInfo"] = calculatedDataMap;
       // シフトデータを1つずつ成形し、戻り値の変数に格納
       await Future.forEach(valueData.entries, (entry) {
+        var groupName = groupNameMap[groupId];
         var list = ["${groupName}  ${entry.value.toString()}"];
         if (shift["${entry.key}"] == null) {
           shift["${entry.key}"] = list;
@@ -154,13 +183,13 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage) async {
       summarySalaryText = numformatter.format(summarySalary);
     }
   });
-  return [shift, salaryInfo, summarySalaryText];
+  return [shift, salaryInfo, summarySalaryText, rowshift];
 }
 
 /// 1グループごとに時給とシフトデータから給与を計算する関数
 /// ただし、手当などのオプションは一切加味していない
 Future<Map<String, dynamic>> calculateSalary(
-    hourlyWage, groupName, shiftdata) async {
+    hourlyWage, groupId, shiftdata) async {
   // 給与の合計
   int totalsalary = 0;
   // 合計労働時間
@@ -203,12 +232,11 @@ Future<Map<String, dynamic>> calculateSalary(
       final start = timeItem[0];
       // 終了時刻
       final end = timeItem[1];
-
       // 労働時間の計算
       // 例：2025/01/01 12:00
-      final dayListItemStart = "${dateString} ${start}";
+      final dayListItemStart = "$dateString $start";
       // 例：2025/01/01 18:00
-      final dayListItemEnd = "${dateString} ${end}";
+      final dayListItemEnd = "$dateString $end";
       // DateTimeに変換
       DateTime starttime = formatter.parse(dayListItemStart);
       DateTime endtime = formatter.parse(dayListItemEnd);
@@ -217,7 +245,7 @@ Future<Map<String, dynamic>> calculateSalary(
       // 分単位で計算されるため時間単位に直す
       final diffhour = diffminute / 60;
       // 労働時間と時給から給与を計算
-      final salary = (diffhour * hourlyWage["${groupName}"]).toInt();
+      final salary = (diffhour * double.parse(hourlyWage["${groupId}"])).toInt();
       // 一日の給与を当月の給与に合計する
       totalsalary = totalsalary + salary;
       // 一日の労働時間を当月の労働時間に合計する
@@ -228,8 +256,8 @@ Future<Map<String, dynamic>> calculateSalary(
   result["totalsalary"] = totalsalary;
   result["attendcount"] = attendcount;
   result["totaldiffhour"] = totaldiffhour.toStringAsFixed(2);
-  // グループ名をキーとして結果を格納
-  responce[groupName] = result;
+  // グループIDをキーとして結果を格納
+  responce[groupId] = result;
   return responce;
 }
 
@@ -357,24 +385,14 @@ Future<bool> getStatus(groupId) async {
 }
 
 /// 所属しているグループのグループ名を取得する
-Future<List> getGroupName(groupId, db) async {
+Future<List> getGroupName(groupId, db, groupNameMap) async {
   // 戻り値を入れるリスト
   List groupName = [];
   // グループIDの数だけ繰り返し処理
-  // グループIDを基にしてグループ名を取得・格納
+  // グループIDを基にしてグループ名を格納
   for (int i = 0; i < groupId.length; i++) {
-    // Firestoreへの参照
-    final doc_ref_groupname = db
-        .collection("Groups")
-        .doc(groupId[i])
-        .collection("groupInfo")
-        .doc("pass");
-    // 参照からデータを取得
-    await doc_ref_groupname.get().then((DocumentSnapshot doc) {
-      final data = doc.data() as Map<String, dynamic>;
       // グループ名をリストに格納
-      groupName.add(data["groupName"]);
-    });
+      groupName.add(groupNameMap[groupId[i]]);
   }
   return groupName;
 }

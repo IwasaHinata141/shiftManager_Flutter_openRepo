@@ -115,6 +115,8 @@ class DataProvider extends ChangeNotifier {
   int groupCount=0;
   // 当月の合計給与
   String summarySalary = "";
+  // 加工前シフトデータ（カレンダーページの変更時に使用）
+  Map<String, dynamic> rowShift = {};
 
   // 取得したデータの格納を行う関数
   Future<void> fetchData() async {
@@ -139,6 +141,7 @@ class DataProvider extends ChangeNotifier {
     groupName = dataList[10];
     groupCount = dataList[11];
     summarySalary = dataList[12];
+    rowShift = dataList[13];
     userEmail = auth.currentUser!.email.toString();
     
     // 状態が変更されたことを通知

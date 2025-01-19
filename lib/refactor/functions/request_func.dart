@@ -47,18 +47,24 @@ Future<String> request(groupId, userId, inputpass) async {
     /// パスワードが正解だった場合
     /// Cloud functions for Firebase にある関数にリクエストを送る
     /// 送り先の関数ではグループIDとユーザーIDを使用するため付加して送信する
-    http.post(
-      Uri.parse('https://request-group-gpp774oc5q-an.a.run.app'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'groupId': groupId,
-        'userId': userId,
-      }),
-    );
-    // 成功時のメッセージテキストを代入
-    responce = "参加リクエストを送信しました\nグループ管理者の操作をお待ち下さい";
+    try {
+      http.post(
+        Uri.parse('https://request-group-gpp774oc5q-an.a.run.app'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          "data": {
+            'groupId': groupId,
+            'userId': userId,
+          }
+        }),
+      );
+      // 成功時のメッセージテキストを代入
+      responce = "参加リクエストを送信しました\nグループ管理者の操作をお待ち下さい";
+    } catch (e) {
+      responce = "${e}";
+    }
   } else {
     // 失敗時のメッセージテキストを代入
     responce = "エラー\nパスワードが間違っている可能性があります";

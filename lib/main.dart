@@ -44,7 +44,7 @@ void main() async {
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  MyApp({required this.fcmToken});
+  MyApp({super.key, required this.fcmToken});
   String? fcmToken;
   final db = FirebaseFirestore.instance;
 
@@ -57,8 +57,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'shiftManager',
         theme: ThemeData(
-          colorScheme:
-              ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 54, 146, 57)),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromARGB(255, 54, 146, 57)),
           useMaterial3: true,
         ),
         home: StreamBuilder<User?>(
@@ -92,7 +92,23 @@ class MyApp extends StatelessWidget {
                           child: MyHomePage(count: 0),
                         );
                       } else {
-                        return CircularProgressIndicator();
+                        return Builder(builder: (context) {
+                          return Scaffold(
+                            body: Center(
+                              child: Container(
+                                width: 50,
+                                height: 50,
+                                color: Colors.white,
+                                child: CircularProgressIndicator(
+                                  valueColor:
+                                      AlwaysStoppedAnimation(Colors.green),
+                                  backgroundColor: Colors.lightGreen[100],
+                                  strokeWidth: 8.0,
+                                ),
+                              ),
+                            ),
+                          );
+                        });
                       }
                     },
                   );

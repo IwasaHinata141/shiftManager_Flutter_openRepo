@@ -86,6 +86,7 @@ class Setting extends StatelessWidget {
               EditHourlyWage(
                 hourlyWage: dataProvider.hourlyWage,
                 groupName: dataProvider.groupName,
+                groupId: dataProvider.groupId,
               ),
 
               ///Edtinotification(),
@@ -255,9 +256,11 @@ class EditHourlyWage extends StatelessWidget {
     super.key,
     required this.hourlyWage,
     required this.groupName,
+    required this.groupId
   });
   Map<String,dynamic> hourlyWage = {};
   List groupName = [];
+  List groupId = [];
 
   @override
   Widget build(BuildContext context) {
@@ -273,6 +276,7 @@ class EditHourlyWage extends StatelessWidget {
                   builder: (context) => HourlyWage(
                         hourlyWage: hourlyWage,
                         groupName: groupName,
+                        groupId: groupId,
                       )));
         },
         style: ElevatedButton.styleFrom(

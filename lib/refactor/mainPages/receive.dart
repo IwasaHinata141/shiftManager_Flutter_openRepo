@@ -140,9 +140,11 @@ class _ReceivePage extends State<ReceivePage> {
                           [];
                       var reloadedData = await calculateSalaryReload(
                           focusedDay,
-                          dataProvider.shiftdata,
                           dataProvider.hourlyWage,
-                          dataProvider.groupName);
+                          dataProvider.groupName,
+                          dataProvider.groupId,
+                          dataProvider.rowShift,
+                          );
                       setState(() {
                         _focusedDay = focusedDay;
                         salaryInfo = reloadedData[0];
@@ -197,6 +199,7 @@ class _ReceivePage extends State<ReceivePage> {
                       salaryInfo["salaryInfo"] ?? dataProvider.salaryInfo,
                   groupCount: dataProvider.groupCount,
                   groupName: dataProvider.groupName,
+                  groupId: dataProvider.groupId,
                   summarySalary: summarySalary["summarySalary"] ??
                       dataProvider.summarySalary,
                 ),
@@ -218,7 +221,8 @@ class CalculateSalaryBox extends StatelessWidget {
       required this.salaryInfo,
       required this.groupCount,
       required this.groupName,
-      required this.summarySalary});
+      required this.summarySalary,
+      required this.groupId});
   // 時給
   var hourlyWage = {};
   // 給与等の情報
@@ -231,6 +235,8 @@ class CalculateSalaryBox extends StatelessWidget {
   var groupName = [];
   // 合計給与
   var summarySalary = "";
+  // グループID
+  var groupId = [];
 
   @override
   Widget build(BuildContext context) {
@@ -283,7 +289,7 @@ class CalculateSalaryBox extends StatelessWidget {
                             Text(groupName[index]),
                             const Spacer(),
                             Text(
-                                "出勤：${salaryInfo[groupName[index]]?["attendcount"] ?? "0"}",
+                                "出勤：${salaryInfo[groupId[index]]?["attendcount"] ?? "0"}",
                                 style: const TextStyle(
                                     fontSize: 15, color: Colors.black)),
                             const Spacer(),
@@ -291,7 +297,7 @@ class CalculateSalaryBox extends StatelessWidget {
                         ),
                         // 勤務時間、時給の表示
                         Text(
-                            "勤務時間${salaryInfo[groupName[index]]?["totaldiffhour"] ?? "0"}時間 × 時給${hourlyWage["${groupName[index]}"]}円",
+                            "勤務時間${salaryInfo[groupId[index]]?["totaldiffhour"] ?? "0"}時間 × 時給${hourlyWage["${groupId[index]}"]}円",
                             style:
                                 const TextStyle(fontSize: 15, color: Colors.black)),
                         // グループの給与を表示
@@ -300,7 +306,7 @@ class CalculateSalaryBox extends StatelessWidget {
                             padding:
                                 const EdgeInsets.only(top: 5, right: 40, bottom: 5),
                             child: Text(
-                                "= ${salaryInfo[groupName[index]]?["totalsalary"] ?? "0"}円",
+                                "= ${salaryInfo[groupId[index]]?["totalsalary"] ?? "0"}円",
                                 style: const TextStyle(
                                     fontSize: 20, color: Colors.black))),
                       ],

@@ -11,11 +11,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 /// 書き込む際のデータ構造(例)
 /// {ユーザーID：
 ///     {"start":
-///       {"2025/01/01":"12:00"},
-///       {"2025/01/02":"14:00"},}
+///       {"2025-01-01":"12:00"},
+///       {"2025-01-02":"14:00"},}
 ///     {"end" :
-///       {"2025/01/01":"15:00"},
-///       {"2025/01/02":"18:00"},}
+///       {"2025-01-01":"15:00"},
+///       {"2025-01-02":"18:00"},}
 ///  } 
 /// 
 Future submitMyshift(
@@ -37,8 +37,10 @@ Future submitMyshift(
   /// 日付をkey、シフトデータをvalueとして格納
   for (int i = 0; i < duration.length; i++) {
     if (startTimeList[i] != "-" && endTimeList[i] != "-") {
-      startshift[duration[i]] = startTimeList[i];
-      endshift[duration[i]] = endTimeList[i];
+      // 日付の仕切りを変更
+      var dayStr = duration[i].replaceAll('/','-');
+      startshift[dayStr] = startTimeList[i];
+      endshift[dayStr] = endTimeList[i];
     }
   }
   // startをkeyとして開始時刻リストを格納
@@ -58,5 +60,5 @@ Future submitMyshift(
       .doc(groupId)
       .collection("groupInfo")
       .doc("RequestShiftList")
-      .set(uploadData);
+      .update(uploadData);
 }

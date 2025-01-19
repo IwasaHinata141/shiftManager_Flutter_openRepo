@@ -39,10 +39,10 @@ class _WithdrawGroup extends State<Withdraw> {
       infoText =
           "現在加入しているグループから退会するグループを選び、[退会する] ボタンを押してください。\n\n注意：退会後は退会したグループからの募集や通知を受け取らなくなります。";
     }
-    if (widget.groupName.length == 1) {
+    if (widget.groupId.length == 1) {
       newGroupIdMap["${1}"] = widget.groupId[0];
     } else {
-      for (int i = 0; i < widget.groupName.length; i++) {
+      for (int i = 0; i < widget.groupId.length; i++) {
         newGroupIdMap["${i + 1}"] = widget.groupId[i];
       }
     }

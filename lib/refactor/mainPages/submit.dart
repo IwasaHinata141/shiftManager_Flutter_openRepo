@@ -102,7 +102,7 @@ class _SubmitPageState extends State<SubmitPage> {
                                               duration = newduration;
                                               startTimeList = newstartTimeList;
                                               endTimeList = newendTimeList;
-                                              hourlyWage = dataProvider.hourlyWage[groupName];
+                                              hourlyWage = int.parse(dataProvider.hourlyWage[groupId]);
                                             });
                                           },
                                         ),
@@ -145,7 +145,7 @@ class _SubmitPageState extends State<SubmitPage> {
               reloadedData["duration"] ?? dataProvider.duration,
               reloadedData["startTimeList"] ?? dataProvider.startTimeList,
               reloadedData["endTimeList"] ?? dataProvider.endTimeList,
-              reloadedData["hourlyWage"] ?? dataProvider.hourlyWage["${dataProvider.groupName[0]}"],
+              reloadedData["hourlyWage"] ?? dataProvider.hourlyWage["${dataProvider.groupId[0]}"],
               reloadedData["groupName"] ?? dataProvider.groupName,
               reloadedData["groupId"] ?? dataProvider.groupId[0]);
         }));
@@ -303,7 +303,7 @@ class _SubmitPageState extends State<SubmitPage> {
                                 }, onConfirm: (date) {
                                   setState(() {
                                     startTimeList[index] =
-                                        "${date.hour.toString()}:${date.minute.toString().padLeft(2, '0')}";
+                                        "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
                                     dataList = calsulatePredictSalary(
                                         startTimeList, endTimeList, hourlyWage);
                                     totalWorkTime = dataList[0];
@@ -344,7 +344,7 @@ class _SubmitPageState extends State<SubmitPage> {
                                 }, onConfirm: (date) {
                                   setState(() {
                                     endTimeList[index] =
-                                        "${date.hour.toString()}:${date.minute.toString().padLeft(2, '0')}";
+                                        "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
                                     dataList = calsulatePredictSalary(
                                         startTimeList, endTimeList, hourlyWage);
                                     totalWorkTime = dataList[0];
