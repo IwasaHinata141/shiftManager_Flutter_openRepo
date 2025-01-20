@@ -17,14 +17,9 @@ bottomNavigationBarによる画面の切換
 
 // ignore: must_be_immutable
 class MyHomePage extends StatefulWidget {
-  MyHomePage({
-    super.key,
-    required this.count
-  });
+  MyHomePage({super.key, required this.count});
   // bottomNavigationBarのインデックス
   int count = 0;
-
-  
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -40,42 +35,61 @@ class _MyHomePageState extends State<MyHomePage> {
     Future.delayed(const Duration(milliseconds: 1000));
   }
 
-   // bottomNavigationBarのページのリスト
-   late final _pageWidgets = [
-            // ホーム画面
-            ReceivePage(),
-            // シフト提出画面
-            SubmitPage(),    
-            // ユーザー設定画面            
-            Setting()
-          ];
+  // bottomNavigationBarのページのリスト
+  late final _pageWidgets = [
+    // ホーム画面
+    ReceivePage(),
+    // シフト提出画面
+    SubmitPage(),
+    // ユーザー設定画面
+    Setting()
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // bottomNavigationBarで指定された画面の表示
-      body:_pageWidgets.elementAt(widget.count),
+      body: _pageWidgets.elementAt(widget.count),
 
-      bottomNavigationBar: BottomNavigationBar(
-        // 選択中のアイテムindex
-        currentIndex: widget.count,
-        // タップ時のハンドラ
-        onTap: (selectedIndex) => setState(() {
-          // インデックスを更新する
-          widget.count = selectedIndex;
-        }),
-        // bottomNavigationBarに表示するコンテンツのリスト
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'ホーム'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'シフト提出'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'マイページ'),
-        ],
-        type: BottomNavigationBarType.fixed,
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          // ナビゲーションバーの上部に線を引く
+          border: Border(
+            top: BorderSide(
+              width: 0.3,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        child: BottomNavigationBar(
+          // アイコンの色を指定
+          selectedIconTheme: const IconThemeData(color: Color(0xFF36AB13)),
+          unselectedIconTheme: const IconThemeData(color: Color(0xFF9DA39B)),
+          // ラベルの色を指定
+          selectedItemColor: const Color(0xFF36AB13),
+          unselectedItemColor:const Color(0xFF9DA39B),
+          // 背景色を指定
+          backgroundColor:const Color(0xFFEDF0ED),
+          // 選択中のアイテムindex
+          currentIndex: widget.count,
+          // タップ時のハンドラ
+          onTap: (selectedIndex) => setState(() {
+            // インデックスを更新する
+            widget.count = selectedIndex;
+          }),
+          // bottomNavigationBarに表示するコンテンツのリスト
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'ホーム'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.calendar_month), label: 'シフト提出'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'マイページ'),
+          ],
+          type: BottomNavigationBarType.fixed,
+        ),
       ),
     );
   }
 }
-
 
 /// Firestoreからユーザーの情報を取得し利用する為のProvider
 /*
@@ -85,7 +99,6 @@ class _MyHomePageState extends State<MyHomePage> {
 */
 
 class DataProvider extends ChangeNotifier {
-  
   /// データを格納する変数の定義
   // シフトデータ（確定済み）
   Map<String, List<String>> shiftdata = {};
@@ -96,7 +109,7 @@ class DataProvider extends ChangeNotifier {
   // durationの数に対応したリスト（シフト提出画面でシフトの終了時間のリストを格納する）
   List<String> endTimeList = [];
   // シフトが募集中か停止中かの真偽値
-  bool status=true;
+  bool status = true;
   // ユーザーのメールアドレス
   String userEmail = "";
   // グループID
@@ -104,15 +117,15 @@ class DataProvider extends ChangeNotifier {
   // 当月の賃金の情報(予測給与、出勤日、労働時間)
   Map<String, dynamic> salaryInfo = {};
   // 生年月日（初期値では一時的に現在の日付データを格納）
-  DateTime birthday=DateTime.now();
+  DateTime birthday = DateTime.now();
   // ユーザー名
-  String username ="";
+  String username = "";
   // 時給データ
-  Map<String, dynamic> hourlyWage ={};
+  Map<String, dynamic> hourlyWage = {};
   // グループ名のリスト
-  List groupName=[];
+  List groupName = [];
   // グループを表示する際のインスタンス
-  int groupCount=0;
+  int groupCount = 0;
   // 当月の合計給与
   String summarySalary = "";
   // 加工前シフトデータ（カレンダーページの変更時に使用）
@@ -124,7 +137,7 @@ class DataProvider extends ChangeNotifier {
     final db = FirebaseFirestore.instance;
     // Firebase authインスタンス
     final auth = FirebaseAuth.instance;
-    
+
     // getDataは実際にデータを取得する関数
     // dataListに戻り値のリストを格納し、dataListから変数に格納する
     var dataList = await getData(db);
@@ -137,14 +150,14 @@ class DataProvider extends ChangeNotifier {
     groupId = dataList[6];
     birthday = dataList[7];
     username = dataList[8];
-    hourlyWage = dataList[9]; 
+    hourlyWage = dataList[9];
     groupName = dataList[10];
     groupCount = dataList[11];
     summarySalary = dataList[12];
     rowShift = dataList[13];
     userEmail = auth.currentUser!.email.toString();
-    
+
     // 状態が変更されたことを通知
-    notifyListeners(); 
+    notifyListeners();
   }
 }

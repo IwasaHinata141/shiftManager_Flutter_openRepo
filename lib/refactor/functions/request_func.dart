@@ -33,7 +33,7 @@ Future<String> request(groupId, userId, inputpass) async {
   // Firestoreから取得した本当のパスワード
   String truePass = "";
   // 画面に表示するメッセージテキスト
-  String responce = "";
+  String responseText = "";
   // Firestoreの参照
   var docRef =
       db.collection("Groups").doc(groupId).collection("groupInfo").doc("pass");
@@ -48,7 +48,7 @@ Future<String> request(groupId, userId, inputpass) async {
     /// Cloud functions for Firebase にある関数にリクエストを送る
     /// 送り先の関数ではグループIDとユーザーIDを使用するため付加して送信する
     try {
-      http.post(
+      final response = await http.post(
         Uri.parse('https://request-group-gpp774oc5q-an.a.run.app'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -60,14 +60,24 @@ Future<String> request(groupId, userId, inputpass) async {
           }
         }),
       );
-      // 成功時のメッセージテキストを代入
-      responce = "参加リクエストを送信しました\nグループ管理者の操作をお待ち下さい";
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // 成功時の処理
+        print(data);
+        responseText = "参加リクエストを送信しました\nグループ管理者の操作をお待ち下さい";
+      } else {
+        // エラー処理
+        print(data);
+        print('Request failed with status: ${response.statusCode}.');
+        print('Body: ${response.body}');
+        responseText = "エラーが発生しました";
+      }
     } catch (e) {
-      responce = "${e}";
+      responseText = "エラーが発生しました";
     }
   } else {
     // 失敗時のメッセージテキストを代入
-    responce = "エラー\nパスワードが間違っている可能性があります";
+    responseText = "エラー\nパスワードが間違っている可能性があります";
   }
-  return responce;
+  return responseText;
 }
