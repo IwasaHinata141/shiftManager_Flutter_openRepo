@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/reload_func.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:intl/intl.dart';
@@ -60,7 +64,23 @@ class _ReceivePage extends State<ReceivePage> {
           Container(
             margin: const EdgeInsets.only(right: 10),
             child: IconButton(
-                onPressed: () => {context.read<DataProvider>().fetchData()},
+                onPressed: () async {
+                  await loadingDialog(context: context);
+                  try {
+                    await context.read<DataProvider>().fetchData().timeout(const Duration(seconds: 3));
+                    Navigator.pop(context);
+                  } on TimeoutException catch (e) {
+                    print("errorMessage:${e}");
+                    var infoText = "更新に失敗しました";
+                    Navigator.pop(context);
+                    showDialog<bool>(
+                        context: context,
+                        builder: (_) {
+                          return ResultDialog(infoText: infoText);
+                        });
+                  }
+                  
+                },
                 icon: const Icon(Icons.restart_alt)),
           ),
         ],
@@ -87,7 +107,8 @@ class _ReceivePage extends State<ReceivePage> {
                     padding: const EdgeInsets.only(bottom: 5),
                     decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(color: Colors.grey),
+                        border: Border.all(
+                            color: const Color(0xFF2D8A06), width: 2),
                         borderRadius: BorderRadius.circular(15),
                         // 影
                         boxShadow: const [
@@ -115,7 +136,10 @@ class _ReceivePage extends State<ReceivePage> {
                         // カレンダーヘッダーの設定
                         headerStyle: const HeaderStyle(
                           titleCentered: true,
-                          titleTextStyle: TextStyle(fontWeight: FontWeight.bold,fontSize: 20,color: Color(0xFF266901)),
+                          titleTextStyle: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Color(0xFF266901)),
                           formatButtonVisible: false,
                           leftChevronVisible: true,
                           rightChevronVisible: true,
@@ -489,7 +513,7 @@ class CalculateSalaryBox extends StatelessWidget {
                         ),
                         // 勤務時間、時給の表示
                         Text(
-                            "勤務時間${salaryInfo[groupId[index]]?["totaldiffhour"] ?? "0"}時間 × 時給${hourlyWage["${groupId[index]}"]}円",
+                            "勤務${salaryInfo[groupId[index]]?["totaldiffhour"] ?? "0"}h × 時給￥${hourlyWage["${groupId[index]}"]}",
                             style: const TextStyle(
                                 fontSize: 15, color: Colors.black)),
                         // グループの給与を表示
@@ -498,7 +522,7 @@ class CalculateSalaryBox extends StatelessWidget {
                             padding: const EdgeInsets.only(
                                 top: 5, right: 40, bottom: 5),
                             child: Text(
-                                "= ${salaryInfo[groupId[index]]?["totalsalary"] ?? "0"}円",
+                                "= ￥${salaryInfo[groupId[index]]?["totalsalary"] ?? "0"}",
                                 style: const TextStyle(
                                     fontSize: 20, color: Colors.black))),
                       ],
@@ -518,7 +542,7 @@ class CalculateSalaryBox extends StatelessWidget {
               height: 40,
               alignment: Alignment.bottomCenter,
               padding: const EdgeInsets.only(top: 5, bottom: 5),
-              child: Text("合計 $summarySalary 円",
+              child: Text("合計 ￥$summarySalary ",
                   style: const TextStyle(fontSize: 20, color: Colors.black))),
         ],
       ),

@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
@@ -43,8 +46,9 @@ class _SubmitPageState extends State<SubmitPage> {
   List<String> endTimeList = [];
   String groupName = "";
   String groupId = "";
-  int hourlyWage = 0;
+  String hourlyWage = "";
   String? dropdownValue;
+  bool minusCheck = true;
   var _groupValue = 0;
 
   @override
@@ -57,85 +61,113 @@ class _SubmitPageState extends State<SubmitPage> {
             style: TextStyle(fontSize: 15),
           ),
           actions: [
-            Consumer<DataProvider>(builder: (context, dataProvider, child) {
-              return Row(
-                children: [
-                  IconButton(
-                      alignment: Alignment.centerLeft,
-                      onPressed: () async => {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  content: StatefulBuilder(
-                                    builder: (BuildContext context,
-                                            StateSetter setState) =>
-                                        Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: List.generate(
-                                        // 配列の要素数だけRadioListTileを生成
-                                        dataProvider.groupName.length,
-                                        (index) => RadioListTile(
-                                          value: index, // 値をインデックスにする
-                                          groupValue: _groupValue,
-                                          title: Text(dataProvider.groupName[
-                                              index]), // テキストをリストの要素から取得
-                                          onChanged: (int? value) async {
-                                            final newstatus = await getStatus(
-                                                dataProvider.groupId[index]);
-                                            final newduration =
-                                                await getDuration(
-                                                    dataProvider.groupId[index]);
-                                            final newstartTimeList =
-                                                await generateEmptyList(
-                                                    newduration.length);
-                                            final newendTimeList =
-                                                await generateEmptyList(
-                                                    newduration.length);
+            Container(
+              margin: const EdgeInsets.only(right: 10),
+              child: Consumer<DataProvider>(
+                  builder: (context, dataProvider, child) {
+                return Row(
+                  children: [
+                    IconButton(
+                        alignment: Alignment.centerLeft,
+                        onPressed: () async => {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: StatefulBuilder(
+                                      builder: (BuildContext context,
+                                              StateSetter setState) =>
+                                          Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: List.generate(
+                                          // 配列の要素数だけRadioListTileを生成
+                                          dataProvider.groupName.length,
+                                          (index) => RadioListTile(
+                                            value: index, // 値をインデックスにする
+                                            groupValue: _groupValue,
+                                            title: Text(dataProvider.groupName[
+                                                index]), // テキストをリストの要素から取得
+                                            onChanged: (int? value) async {
+                                              final newstatus = await getStatus(
+                                                  dataProvider.groupId[index]);
+                                              final newduration =
+                                                  await getDuration(dataProvider
+                                                      .groupId[index]);
+                                              final newstartTimeList =
+                                                  await generateEmptyList(
+                                                      newduration.length);
+                                              final newendTimeList =
+                                                  await generateEmptyList(
+                                                      newduration.length);
 
-                                            setState(() {
-                                              _groupValue = value!;
-                                              groupName =
-                                                  dataProvider.groupName[index];
-                                              groupId = dataProvider.groupId[index];
-                                              status = newstatus;
-                                              duration = newduration;
-                                              startTimeList = newstartTimeList;
-                                              endTimeList = newendTimeList;
-                                              hourlyWage = int.parse(dataProvider.hourlyWage[groupId]);
-                                            });
-                                          },
+                                              setState(() {
+                                                _groupValue = value!;
+                                                groupName = dataProvider
+                                                    .groupName[index];
+                                                groupId =
+                                                    dataProvider.groupId[index];
+                                                status = newstatus;
+                                                duration = newduration;
+                                                startTimeList =
+                                                    newstartTimeList;
+                                                endTimeList = newendTimeList;
+                                                hourlyWage = dataProvider
+                                                    .hourlyWage[groupId];
+                                              });
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ).then((value) => setState(() {
-                                  reloadedData["status"] = status;
-                                  reloadedData["duration"] = duration;
-                                  reloadedData["startTimeList"] = startTimeList;
-                                  reloadedData["endTimeList"] = endTimeList;
-                                  reloadedData["groupName"] = groupName;
-                                  reloadedData["groupId"] = groupId;
-                                  reloadedData["hourlyWage"] = hourlyWage;
-                                }))
-                          },
-                      icon: const Icon(Icons.tune)),
-                  IconButton(
-                      onPressed: () => {
-                            context.read<DataProvider>().fetchData(),
-                            setState(() {
-                              predictSalary = "0";
-                              totalWorkTime = "0";
-                              timeList = {};
-                              salaryList = {};
-                            })
-                          },
-                      icon: const Icon(Icons.restart_alt)),
-                ],
-              );
-            }),
+                                  );
+                                },
+                              ).then((value) => setState(() {
+                                    reloadedData["status"] = status;
+                                    reloadedData["duration"] = duration;
+                                    reloadedData["startTimeList"] =
+                                        startTimeList;
+                                    reloadedData["endTimeList"] = endTimeList;
+                                    reloadedData["groupName"] = groupName;
+                                    reloadedData["groupId"] = groupId;
+                                    reloadedData["hourlyWage"] = hourlyWage;
+                                    predictSalary = "0";
+                                    totalWorkTime = "0";
+                                    timeList = {};
+                                    salaryList = {};
+                                  }))
+                            },
+                        icon: const Icon(Icons.tune)),
+                    IconButton(
+                        onPressed: () async {
+                          await loadingDialog(context: context);
+                          try {
+                            await context
+                                .read<DataProvider>()
+                                .fetchData()
+                                .timeout(const Duration(seconds: 3));
+                            Navigator.pop(context);
+                          } on TimeoutException catch (e) {
+                            print("errorMessage:${e}");
+                            var infoText = "更新に失敗しました";
+                            Navigator.pop(context);
+                            showDialog<bool>(
+                                context: context,
+                                builder: (_) {
+                                  return ResultDialog(infoText: infoText);
+                                });
+                          }
+                          setState(() {
+                            predictSalary = "0";
+                            totalWorkTime = "0";
+                            timeList = {};
+                            salaryList = {};
+                          });
+                        },
+                        icon: const Icon(Icons.restart_alt)),
+                  ],
+                );
+              }),
+            ),
           ],
           backgroundColor: const Color.fromARGB(255, 228, 228, 228),
         ),
@@ -145,7 +177,8 @@ class _SubmitPageState extends State<SubmitPage> {
               reloadedData["duration"] ?? dataProvider.duration,
               reloadedData["startTimeList"] ?? dataProvider.startTimeList,
               reloadedData["endTimeList"] ?? dataProvider.endTimeList,
-              reloadedData["hourlyWage"] ?? dataProvider.hourlyWage["${dataProvider.groupId[0]}"],
+              reloadedData["hourlyWage"] ??
+                  dataProvider.hourlyWage["${dataProvider.groupId[0]}"],
               reloadedData["groupName"] ?? dataProvider.groupName,
               reloadedData["groupId"] ?? dataProvider.groupId[0]);
         }));
@@ -165,34 +198,35 @@ class _SubmitPageState extends State<SubmitPage> {
                 alignment: Alignment.center,
                 width: double.infinity,
                 color: const Color.fromARGB(255, 71, 69, 62),
-                child: groupName[0] !="no data" ?
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,   
-                  children: [
-                    Text(
-                      "${reloadedData["groupName"] ?? groupName[0]}は",
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                    const Text(
-                      "募集期間中ではありません",
-                      style: TextStyle(color: Colors.white70),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ):const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,   
-                  children: [
-                    Text(
-                      "グループに参加していません",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    Text(
-                      "マイページからグループに参加してください",
-                      style: TextStyle(color: Colors.white70),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+                child: groupName[0] != "no data"
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${reloadedData["groupName"] ?? groupName[0]}は",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          const Text(
+                            "募集期間中ではありません",
+                            style: TextStyle(color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      )
+                    : const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "グループに参加していません",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          Text(
+                            "マイページからグループに参加してください",
+                            style: TextStyle(color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
               ),
             )
           ],
@@ -238,8 +272,8 @@ class _SubmitPageState extends State<SubmitPage> {
                         const Spacer(),
                         Container(
                             alignment: Alignment.bottomRight,
-                            padding:
-                                const EdgeInsets.only(top: 5, right: 40, bottom: 5),
+                            padding: const EdgeInsets.only(
+                                top: 5, right: 40, bottom: 5),
                             child: Row(
                               children: [
                                 const Spacer(),
@@ -282,7 +316,8 @@ class _SubmitPageState extends State<SubmitPage> {
                           decoration: const BoxDecoration(
                             color: Color.fromARGB(255, 230, 228, 228),
                           ),
-                          child: Text("${duration[index].split("/")[1]}/${duration[index].split("/")[2]}"),
+                          child: Text(
+                              "${duration[index].split("/")[1]}/${duration[index].split("/")[2]}"),
                         ),
                         Expanded(
                           child: TextButton(
@@ -375,8 +410,8 @@ class _SubmitPageState extends State<SubmitPage> {
                                         bottom: BorderSide(color: Colors.grey)),
                                   ),
                                   height: 25,
-                                  child: Text(
-                                      "${(timeList["$index"] ?? "0")}h")),
+                                  child:
+                                      Text("${(timeList["$index"] ?? "0")}h")),
                               Container(
                                   alignment: Alignment.bottomLeft,
                                   padding: const EdgeInsets.only(left: 10),
@@ -417,16 +452,26 @@ class _SubmitPageState extends State<SubmitPage> {
                     backgroundColor: const Color.fromARGB(255, 54, 146, 57),
                   ),
                   onPressed: () async {
-                    showDialog<bool>(
-                        context: context,
-                        builder: (_) {
-                          return SubmitDialog(
-                            startTimeList: startTimeList,
-                            endTimeList: endTimeList,
-                            duration: duration,
-                            groupId: groupId,
-                          );
-                        });
+                    for (int i = 0; i < salaryList.length; i++) {
+                      if (int.parse(salaryList["$i"]) < 0) {
+                        print(salaryList["$i"]);
+                        minusCheck = false;
+                      }
+                    }
+
+                    print("minuscheck:${minusCheck}");
+                    if (minusCheck) {
+                      showDialog<bool>(
+                          context: context,
+                          builder: (_) {
+                            return SubmitDialog(
+                              startTimeList: startTimeList,
+                              endTimeList: endTimeList,
+                              duration: duration,
+                              groupId: groupId,
+                            );
+                          });
+                    } else {}
                   },
                   child: const Text(
                     "送信",

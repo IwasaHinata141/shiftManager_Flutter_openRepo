@@ -30,7 +30,7 @@ List calsulatePredictSalary( startTimeList, endTimeList,hourlyWage) {
       // 労働時間を時間単位に直し、小数点以下を2桁まで表示するように指定
       final diffhour = (diffminute / 60).toStringAsFixed(2);
       // 一日の労働時間と時給から一日の給与を算出
-      final salary = numformatter.format((diffminute / 60 )*hourlyWage);
+      final salary = numformatter.format((diffminute / 60 )*double.parse(hourlyWage));
       // 成形した一日の労働時間を格納
       timeList["$i"] = diffhour;
       // 一日の給与を格納
@@ -43,7 +43,7 @@ List calsulatePredictSalary( startTimeList, endTimeList,hourlyWage) {
     }
   }
   // 全体の労働時間と時給から全体の給与を算出
-  final totalsalary =numformatter.format((totalWorkTime / 60 )*hourlyWage);
+  final totalsalary =numformatter.format((totalWorkTime / 60 )*double.parse(hourlyWage));
   // 全体の労働時間を時間単位に直した後、小数点以下を2桁表示するように設定
   final totalWorkTimeAsHour = (totalWorkTime / 60).toStringAsFixed(2);
   return [totalWorkTimeAsHour,totalsalary,timeList,salaryList];

@@ -31,8 +31,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     // データの初期取得
     Provider.of<DataProvider>(context, listen: false).fetchData();
-    // データの取得を0.5秒待つ
-    Future.delayed(const Duration(milliseconds: 1000));
+    // データの取得を数秒待つ
+    Future.delayed(const Duration(milliseconds: 500));
   }
 
   // bottomNavigationBarのページのリスト
@@ -50,7 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       // bottomNavigationBarで指定された画面の表示
       body: _pageWidgets.elementAt(widget.count),
-
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           // ナビゲーションバーの上部に線を引く
@@ -130,6 +129,8 @@ class DataProvider extends ChangeNotifier {
   String summarySalary = "";
   // 加工前シフトデータ（カレンダーページの変更時に使用）
   Map<String, dynamic> rowShift = {};
+  // グループ名とグループIDの対応表
+  Map<String, dynamic> groupNameMap = {};
 
   // 取得したデータの格納を行う関数
   Future<void> fetchData() async {
@@ -155,6 +156,7 @@ class DataProvider extends ChangeNotifier {
     groupCount = dataList[11];
     summarySalary = dataList[12];
     rowShift = dataList[13];
+    groupNameMap = dataList[14];
     userEmail = auth.currentUser!.email.toString();
 
     // 状態が変更されたことを通知

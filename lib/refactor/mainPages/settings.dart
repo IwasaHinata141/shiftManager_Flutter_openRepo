@@ -83,11 +83,7 @@ class Setting extends StatelessWidget {
                 birthday: dataProvider.birthday,
                 username: dataProvider.username,
               ),
-              EditHourlyWage(
-                hourlyWage: dataProvider.hourlyWage,
-                groupName: dataProvider.groupName,
-                groupId: dataProvider.groupId,
-              ),
+              
 
               ///Edtinotification(),
               Container(
@@ -103,8 +99,14 @@ class Setting extends StatelessWidget {
                   ],
                 ),
               ),
+              EditHourlyWage(
+                hourlyWage: dataProvider.hourlyWage,
+                groupName: dataProvider.groupName,
+                groupId: dataProvider.groupId,
+                groupNameMap:dataProvider.groupNameMap
+              ),
               const EntryGroup(),
-              WithdrawGroup(groupName: dataProvider.groupName, groupId: dataProvider.groupId,),
+              WithdrawGroup(groupName: dataProvider.groupName, groupId: dataProvider.groupId,groupNameMap: dataProvider.groupNameMap,),
               Container(
                 padding: const EdgeInsets.only(left: 15),
                 height: 40,
@@ -163,9 +165,11 @@ class WithdrawGroup extends StatelessWidget {
     super.key,
     required this.groupName,
     required this.groupId,
+    required this.groupNameMap,
   });
   List groupName =[];
   List groupId = [];
+  Map<String,dynamic> groupNameMap = {};
 
   @override
   Widget build(BuildContext context) {
@@ -175,12 +179,10 @@ class WithdrawGroup extends StatelessWidget {
       height: 70,
       child: ElevatedButton(
         onPressed: () async{
-          await context.read<DataProvider>().fetchData();
-          
           Navigator.pushReplacement(
             // ignore: use_build_context_synchronously
             context,
-            MaterialPageRoute(builder: (context) => Withdraw(groupName: groupName, groupId: groupId,)),
+            MaterialPageRoute(builder: (context) => Withdraw(groupName: groupName, groupId: groupId,groupNameMap: groupNameMap,)),
           );
           
         },
@@ -256,11 +258,13 @@ class EditHourlyWage extends StatelessWidget {
     super.key,
     required this.hourlyWage,
     required this.groupName,
-    required this.groupId
+    required this.groupId,
+    required this.groupNameMap,
   });
   Map<String,dynamic> hourlyWage = {};
   List groupName = [];
   List groupId = [];
+  Map<String,dynamic> groupNameMap = {};
 
   @override
   Widget build(BuildContext context) {
@@ -277,6 +281,7 @@ class EditHourlyWage extends StatelessWidget {
                         hourlyWage: hourlyWage,
                         groupName: groupName,
                         groupId: groupId,
+                        groupNameMap: groupNameMap,
                       )));
         },
         style: ElevatedButton.styleFrom(
@@ -284,7 +289,7 @@ class EditHourlyWage extends StatelessWidget {
             backgroundColor: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
-        child: const Text("時給設定"),
+        child: const Text("時給設定 / グループ名変更"),
       ),
     );
   }
@@ -309,7 +314,7 @@ class EditUser extends StatelessWidget {
       height: 70,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushReplacement(
+          Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => EditUserInfo(

@@ -99,10 +99,10 @@ class MyApp extends StatelessWidget {
                                 width: 50,
                                 height: 50,
                                 color: Colors.white,
-                                child: CircularProgressIndicator(
+                                child: const CircularProgressIndicator(
                                   valueColor:
                                       AlwaysStoppedAnimation(Colors.green),
-                                  backgroundColor: Colors.lightGreen[100],
+                                  backgroundColor: Color.fromARGB(255, 220, 237, 200),
                                   strokeWidth: 8.0,
                                 ),
                               ),

@@ -58,6 +58,7 @@ Future<List> getData(db) async {
     groupCount,
     summarySalary,
     rowShift,
+    groupNameMap
   ];
 }
 
