@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/dialog.dart';
-import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/common_dialog.dart';
 
 /// グループの退会を行うためのページ
 ///
@@ -126,7 +124,7 @@ class _WithdrawGroup extends State<Withdraw> {
                               int k =1;
                               if (widget.groupId[i] !=
                                   selectedGroupId) {
-                                  newGroupIdMap["${k}"] = widget.groupId[i];
+                                  newGroupIdMap["$k"] = widget.groupId[i];
                                   k++;
                               }
                             }

@@ -67,7 +67,6 @@ Future<String> submitMyshift(
         .update(uploadData);
     infoText = "シフトの提出が完了しました。";
   } catch (e) {
-    print("失敗した");
     infoText = "エラー\n提出に失敗しました";
   }
   return infoText;

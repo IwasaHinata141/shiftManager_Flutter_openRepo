@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/setting_func.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:intl/intl.dart';
-import '../screens/main_screen.dart';
-import 'package:provider/provider.dart';
 
 /// ユーザー情報を変更するためのページ
 /*

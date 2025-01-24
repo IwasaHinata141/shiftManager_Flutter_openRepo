@@ -79,7 +79,6 @@ Future<Map<String,dynamic>> getGroupNameMap(db,userId) async{
     final data = doc.data() as Map<String, dynamic>;
     groupNameMap = data["groupNameList"];
    });
-  print("groupNameList:${groupNameMap}");
   return groupNameMap;
 }
 
@@ -98,13 +97,13 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
   // 加工前のシフトデータを格納する
   Map<String, dynamic> rawshift = {};
   // Firestoreのシフトデータへの参照
-  final doc_ref_shift = db
+  final docRefShift = db
       .collection("Users")
       .doc(userId)
       .collection("CompletedShift")
       .doc("shift");
   // 参照からのデータをMap型で取得
-  await doc_ref_shift.get().then((DocumentSnapshot doc) async {
+  await docRefShift.get().then((DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
     rawshift = data;
     // シフトデータはグループごとに分けているため、要素数で所属グループ数を取得できる
@@ -122,14 +121,14 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
         /// no data の情報は表示する必要がないため、処理を省いている
         if (groupId != "no data") {
           // シフトデータを取得する(valueDataの構造(例): {2000/01/01:"12:00-18:00"})
-          Map<String, dynamic> valueData = data["${groupId}"];
+          Map<String, dynamic> valueData = data[groupId];
           // 時給とシフトデータを基に給与、労働時間、出勤日数を計算する
           Map<String, dynamic> calculatedDataInstance =
               await calculateSalary(hourlyWage, groupId, valueData);
           // 全てのグループの結果をまとめるために変数に格納
           calculatedDataMap.addAll(calculatedDataInstance);
           // 現在のグループの当月の給与を格納
-          int salary = calculatedDataInstance["${groupId}"]["totalsalary"];
+          int salary = calculatedDataInstance[groupId]["totalsalary"];
           // 当月の全てのグループからの給与を算出するために合計する
           summarySalary = summarySalary + salary;
           // 結果を戻り値の変数に格納
@@ -137,11 +136,11 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
           // シフトデータを1つずつ成形し、戻り値の変数に格納
           await Future.forEach(valueData.entries, (entry) {
             var groupName = groupNameMap[groupId];
-            var list = ["${groupName}  ${entry.value.toString()}"];
-            if (shift["${entry.key}"] == null) {
-              shift["${entry.key}"] = list;
+            var list = ["$groupName  ${entry.value.toString()}"];
+            if (shift[entry.key] == null) {
+              shift[entry.key] = list;
             } else {
-              final List<String> previousData = shift["${entry.key}"]!;
+              final List<String> previousData = shift[entry.key]!;
               previousData.add(list[0]);
             }
           });
@@ -157,7 +156,7 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
       }
       final groupId = newkey;
       // シフトデータを取得する(valueDataの構造(例): {2000/01/01:"12:00-18:00"})
-      Map<String, dynamic> valueData = data["${groupId}"];
+      Map<String, dynamic> valueData = data[groupId];
       // 時給とシフトデータを基に給与、労働時間、出勤日数を計算する
       Map<String, dynamic> calculatedDataInstance =
           await calculateSalary(hourlyWage, groupId, valueData);
@@ -168,11 +167,11 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
       // シフトデータを1つずつ成形し、戻り値の変数に格納
       await Future.forEach(valueData.entries, (entry) {
         var groupName = groupNameMap[groupId];
-        var list = ["${groupName}  ${entry.value.toString()}"];
-        if (shift["${entry.key}"] == null) {
-          shift["${entry.key}"] = list;
+        var list = ["$groupName  ${entry.value.toString()}"];
+        if (shift[entry.key] == null) {
+          shift[entry.key] = list;
         } else {
-          final List<String> previousData = shift["${entry.key}"]!;
+          final List<String> previousData = shift[entry.key]!;
           previousData.add(list[0]);
         }
       });
@@ -207,7 +206,7 @@ Future<Map<String, dynamic>> calculateSalary(
   final startDay = formatter.format(DateTime(now.year, now.month, 1));
   // 当月の月末の日付
   final endDay = formatter
-      .format(DateTime(now.year, now.month + 1, 1).subtract(Duration(days: 1)));
+      .format(DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1)));
   // startDayのDatetime型
   final firstDay = formatter.parse(startDay);
   // endDayのDatetime型
@@ -217,12 +216,12 @@ Future<Map<String, dynamic>> calculateSalary(
 
   // firstDayからfinalDayまでの間の日付部分を成形して順にリストに追加
   for (DateTime date = firstDay;
-      date.isBefore(finalDay.add(Duration(days: 1)));
-      date = date.add(Duration(days: 1))) {
+      date.isBefore(finalDay.add(const Duration(days: 1)));
+      date = date.add(const Duration(days: 1))) {
     // (2025-01-01 00:00:00.000) → (2025/01/01)
     final dateString = date.toString().split(" ")[0].replaceAll("-", "/");
     // シフトデータを取り出してリストに追加
-    final dataField = shiftdata["${dateString}"];
+    final dataField = shiftdata[dateString];
     // 該当する日付のシフトデータが存在する場合だけ処理を行う
     if (dataField != null) {
       // 出勤日数を1つ増やす
@@ -246,7 +245,7 @@ Future<Map<String, dynamic>> calculateSalary(
       // 分単位で計算されるため時間単位に直す
       final diffhour = diffminute / 60;
       // 労働時間と時給から給与を計算
-      final salary = (diffhour * double.parse(hourlyWage["${groupId}"])).toInt();
+      final salary = (diffhour * double.parse(hourlyWage["$groupId"])).toInt();
       // 一日の給与を当月の給与に合計する
       totalsalary = totalsalary + salary;
       // 一日の労働時間を当月の労働時間に合計する
@@ -269,13 +268,13 @@ Future<List<String>> getDuration(groupId) async {
   // シフト期間の日付を格納するリスト
   List<String> listOfShiftDay = [];
   // Firestoreへの参照
-  final doc_ref_duration = db
+  final docRefDuration = db
       .collection("Groups")
       .doc(groupId)
       .collection("groupInfo")
       .doc("tableRequest");
   // 参照からデータを取得
-  await doc_ref_duration.get().then((DocumentSnapshot doc) {
+  await docRefDuration.get().then((DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     // シフトの開始日
     var start = data["start"];
@@ -299,8 +298,8 @@ Future<List<String>> getDuration(groupId) async {
     // 日数分の繰り返し処理を行い、日付をリストに格納
     for (int i = 0; i <= difference.inDays; i++) {
       String formattedDate = formatter.format(dayOfStart);
-      listOfShiftDay.add("${formattedDate}");
-      dayOfStart = dayOfStart.add(Duration(days: 1));
+      listOfShiftDay.add(formattedDate);
+      dayOfStart = dayOfStart.add(const Duration(days: 1));
     }
   });
   return listOfShiftDay;

@@ -81,7 +81,7 @@ Future<String> request(groupId, userId, inputpass) async {
     data2 = doc.data() as Map<String, dynamic>;
     if (data2["1"] != "no data") {
       for (int i = 1; i <= data2.length; i++) {
-        String uid = data2["${i}"]["uid"];
+        String uid = data2["$i"]["uid"];
         if (userId == uid) {
           checkSecondTime = true;
         }
@@ -93,7 +93,7 @@ Future<String> request(groupId, userId, inputpass) async {
     data3 = doc.data() as Map<String, dynamic>;
     if (data3["1"] != "no data") {
       for (int i = 1; i <= data3.length; i++) {
-        String uid = data3["${i}"]["uid"];
+        String uid = data3["$i"]["uid"];
         if (userId == uid) {
           checkBelonging = true;
         }
@@ -126,14 +126,11 @@ Future<String> request(groupId, userId, inputpass) async {
             }
           }),
         );
-        final data = jsonDecode(response.body);
         if (response.statusCode == 200) {
           // 成功時の処理
-          print(data);
           responseText = "参加リクエストを送信しました\nグループ管理者の操作をお待ち下さい";
         } else {
           // エラー処理
-          print('Request failed with status: ${response.statusCode}.');
           responseText = "エラーが発生しました";
         }
       } catch (e) {

@@ -3,7 +3,7 @@ import 'package:flutter_application_1_shift_manager/refactor/mainPages/submit.da
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../mainPages/receive.dart';
 import '../mainPages/settings.dart';
-import '../functions/getdata_func.dart';
+import '../functions/get_data_func.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -22,7 +22,7 @@ class MyHomePage extends StatefulWidget {
   int count = 0;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -38,11 +38,11 @@ class _MyHomePageState extends State<MyHomePage> {
   // bottomNavigationBarのページのリスト
   late final _pageWidgets = [
     // ホーム画面
-    ReceivePage(),
+    const ReceivePage(),
     // シフト提出画面
-    SubmitPage(),
+    const SubmitPage(),
     // ユーザー設定画面
-    Setting()
+    const Setting()
   ];
 
   @override
@@ -175,7 +175,6 @@ class DataProvider extends ChangeNotifier {
     final userId = auth.currentUser?.uid.toString();
     final shiftData = await getMyShift(userId, db, hourlyWage, groupNameMap);
     rawShift = shiftData[3];
-    print("test :${rawShift}");
     notifyListeners();
   }
 }

@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
     as picker;
 import 'package:provider/provider.dart';
-import '../functions/getdata_func.dart';
-import '../dialogs/dialog.dart';
-import '../functions/predictsalary_func.dart';
+import '../functions/get_data_func.dart';
+import '../dialogs/common_dialog.dart';
+import '../functions/predict_salary_func.dart';
 
 /// シフト提出画面（メイン画面インデックス１）
 /// 募集中のシフトに対して希望を入力し送信するページ
@@ -141,16 +141,19 @@ class _SubmitPageState extends State<SubmitPage> {
                         onPressed: () async {
                           await loadingDialog(context: context);
                           try {
+                            // ignore: use_build_context_synchronously
                             await context
                                 .read<DataProvider>()
                                 .fetchData()
                                 .timeout(const Duration(seconds: 3));
+                            // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                           } on TimeoutException catch (e) {
-                            print("errorMessage:${e}");
                             var infoText = "更新に失敗しました";
+                            // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                             showDialog<bool>(
+                                // ignore: use_build_context_synchronously
                                 context: context,
                                 builder: (_) {
                                   return ResultDialog(infoText: infoText);
@@ -178,7 +181,7 @@ class _SubmitPageState extends State<SubmitPage> {
               reloadedData["startTimeList"] ?? dataProvider.startTimeList,
               reloadedData["endTimeList"] ?? dataProvider.endTimeList,
               reloadedData["hourlyWage"] ??
-                  dataProvider.hourlyWage["${dataProvider.groupId[0]}"],
+                  dataProvider.hourlyWage[dataProvider.groupId[0]],
               reloadedData["groupName"] ?? dataProvider.groupName,
               reloadedData["groupId"] ?? dataProvider.groupId[0]);
         }));
@@ -454,12 +457,9 @@ class _SubmitPageState extends State<SubmitPage> {
                   onPressed: () async {
                     for (int i = 0; i < salaryList.length; i++) {
                       if (int.parse(salaryList["$i"]) < 0) {
-                        print(salaryList["$i"]);
                         minusCheck = false;
                       }
                     }
-
-                    print("minuscheck:${minusCheck}");
                     if (minusCheck) {
                       showDialog<bool>(
                           context: context,

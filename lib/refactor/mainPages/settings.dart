@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:flutter_application_1_shift_manager/refactor/settingPages/withdraw.dart';
 import 'package:provider/provider.dart';
-import '../dialogs/dialog.dart';
+import '../dialogs/common_dialog.dart';
 import '../settingPages/search.dart';
 import '../settingPages/edit_user_info.dart';
 import '../settingPages/hourly_wage.dart';
@@ -39,18 +39,18 @@ class Setting extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                color: Color(0xFF2D7A5D),
+                color: const Color(0xFF2D7A5D),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
+                      SizedBox(
                           width: double.infinity,
-                          child: Text(dataProvider.username,style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20))),
-                      Container(
+                          child: Text(dataProvider.username,style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20))),
+                      SizedBox(
                           width: double.infinity,
-                          child: Text(dataProvider.userEmail,style: TextStyle(color: Colors.white))),
+                          child: Text(dataProvider.userEmail,style: const TextStyle(color: Colors.white))),
                     ],
                   ),
                 ),
@@ -138,7 +138,7 @@ class EntryGroup extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => SearchGroup()),
+            MaterialPageRoute(builder: (context) => const SearchGroup()),
           );
         },
         style: ElevatedButton.styleFrom(
@@ -297,7 +297,7 @@ class LogoutButton extends StatelessWidget {
           showDialog<void>(
               context: context,
               builder: (_) {
-                return LogoutDialog();
+                return const LogoutDialog();
               });
         },
         child: const Text(

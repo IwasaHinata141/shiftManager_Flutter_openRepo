@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/deleteShiftDialog.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/dialog.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/editShiftDialog.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/addExtraShiftDailog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/delete_shift_dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/common_dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/edit_shift_dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/add_extra_shift_dailog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/reload_func.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:intl/intl.dart';
@@ -24,12 +22,7 @@ import 'package:table_calendar/table_calendar.dart';
 シフトデータ・給与・出勤回数・勤務時間を取得、
 appbarのボタンをタップ時にProviderを再読み込み、
 給与、出勤回数、勤務時間を表示
-
-今後追加したい機能：
-・このアプリからのシフトの追加を可能にすること
-・既にあるシフトを削除/編集可能にすること
-この二つの機能にて編集されたシフトデータはユーザーのFirestoreに書き込む
-までにとどめて、グループのFirestoreには書き込まない
+シフトの追加・編集・削除
 */
 
 class ReceivePage extends StatefulWidget {
@@ -73,16 +66,19 @@ class _ReceivePage extends State<ReceivePage> {
                 onPressed: () async {
                   await loadingDialog(context: context);
                   try {
+                    // ignore: use_build_context_synchronously
                     await context
                         .read<DataProvider>()
                         .fetchData()
                         .timeout(const Duration(seconds: 2));
+                    // ignore: use_build_context_synchronously
                     Navigator.pop(context);
                   } on TimeoutException catch (e) {
-                    print("errorMessage:${e}");
                     var infoText = "更新に失敗しました";
+                    // ignore: use_build_context_synchronously
                     Navigator.pop(context);
                     showDialog<bool>(
+                        // ignore: use_build_context_synchronously
                         context: context,
                         builder: (_) {
                           return ResultDialog(infoText: infoText);
@@ -244,7 +240,7 @@ class _ReceivePage extends State<ReceivePage> {
                                   showDialog<Map<String, List<String>>>(
                                       context: context,
                                       builder: (_) {
-                                        return addShiftDialog(
+                                        return AddShiftDialog(
                                           selectedDay: DateFormat('yyyy/MM/dd')
                                               .format(_focusedDay),
                                           groupNameMap:
@@ -260,6 +256,7 @@ class _ReceivePage extends State<ReceivePage> {
                                           .read<DataProvider>()
                                           .setShift(value);
                                     }
+                                    // ignore: use_build_context_synchronously
                                     await context
                                         .read<DataProvider>()
                                         .setRawShift();
@@ -316,7 +313,7 @@ class _ReceivePage extends State<ReceivePage> {
                                   showDialog<Map<String, List<String>>>(
                                       context: context,
                                       builder: (_) {
-                                        return editShiftDialog(
+                                        return EditShiftDialog(
                                           selectedDay: DateFormat('yyyy/MM/dd')
                                               .format(_focusedDay),
                                           groupNameMap:
@@ -333,6 +330,7 @@ class _ReceivePage extends State<ReceivePage> {
                                           .read<DataProvider>()
                                           .setShift(value);
                                     }
+                                    // ignore: use_build_context_synchronously
                                     await context
                                         .read<DataProvider>()
                                         .setRawShift();
@@ -389,7 +387,7 @@ class _ReceivePage extends State<ReceivePage> {
                                   showDialog<Map<String, List<String>>>(
                                       context: context,
                                       builder: (_) {
-                                        return deleteShiftDialog(
+                                        return DeleteShiftDialog(
                                           selectedDay: DateFormat('yyyy/MM/dd')
                                               .format(_focusedDay),
                                           groupNameMap:
@@ -406,6 +404,7 @@ class _ReceivePage extends State<ReceivePage> {
                                           .read<DataProvider>()
                                           .setShift(value);
                                     }
+                                    // ignore: use_build_context_synchronously
                                     await context
                                         .read<DataProvider>()
                                         .setRawShift();

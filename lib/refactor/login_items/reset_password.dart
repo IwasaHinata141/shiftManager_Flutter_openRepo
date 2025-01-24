@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/login_items/login.dart';
 
 // パスワードの再設定画面
 /*

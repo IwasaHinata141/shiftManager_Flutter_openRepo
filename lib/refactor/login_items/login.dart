@@ -10,6 +10,8 @@ import 'reset_password.dart';
 */
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   State<LoginPage> createState() => _LoginPage();
 }
@@ -29,13 +31,13 @@ class _LoginPage extends State<LoginPage> {
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            padding: EdgeInsets.all(32),
+            padding: const EdgeInsets.all(32),
             child: Column(
               children: <Widget>[
                 const SizedBox(height: 32),
                 // メールアドレスの入力フォーム
                 TextFormField(
-                  decoration: InputDecoration(labelText: "メールアドレス"),
+                  decoration: const InputDecoration(labelText: "メールアドレス"),
                   onChanged: (String value) {
                     setState(() {
                       loginUserEmail = value;
@@ -44,7 +46,7 @@ class _LoginPage extends State<LoginPage> {
                 ),
                 // パスワードの入力フォーム
                 TextFormField(
-                  decoration: InputDecoration(labelText: "パスワード"),
+                  decoration: const InputDecoration(labelText: "パスワード"),
                   obscureText: true,
                   onChanged: (String value) {
                     setState(() {
@@ -54,22 +56,22 @@ class _LoginPage extends State<LoginPage> {
                 ),
                 const SizedBox(height: 3),
                 //パスワードを忘れた場合にはパスワード再設定を行う
-                Container(
+                SizedBox(
                     height: 40,
                     child: TextButton(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ResetPassword()),
+                                builder: (context) => const ResetPassword()),
                           );
                         },
-                        child: Text("パスワードをお忘れの場合"))),
+                        child: const Text("パスワードをお忘れの場合"))),
                 Text(infoText),
 
                 //ログインボタン
                 ElevatedButton(
-                  child: Text("ログイン"),
+                  child: const Text("ログイン"),
                   onPressed: () async {
                     // loginActionはログイン処理を行う関数
                     answer = await loginAction(
@@ -84,11 +86,11 @@ class _LoginPage extends State<LoginPage> {
                 //新規登録画面への遷移を行うボタン
                 const SizedBox(height: 8),
                 ElevatedButton(
-                  child: Text("新規登録"),
+                  child: const Text("新規登録"),
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => SignUp()),
+                      MaterialPageRoute(builder: (context) => const SignUp()),
                     );
                   },
                 ),

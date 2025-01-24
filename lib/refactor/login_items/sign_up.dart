@@ -15,8 +15,10 @@ import 'package:flutter_application_1_shift_manager/refactor/login_items/sign_up
 */
 
 class SignUp extends StatefulWidget {
+  const SignUp({super.key});
+
   @override
-  _MyAuthPageState createState() => _MyAuthPageState();
+  State<SignUp> createState() => _MyAuthPageState();
 }
 
 class _MyAuthPageState extends State<SignUp> {
@@ -33,7 +35,7 @@ class _MyAuthPageState extends State<SignUp> {
   // フルネームを格納
   String fullname = "";
   // ユーザーIDを格納
-  var userId;
+  String? userId = "";
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +43,12 @@ class _MyAuthPageState extends State<SignUp> {
       body: SingleChildScrollView(
         child: Center(
           child: Container(
-            padding: EdgeInsets.all(32),
+            padding: const EdgeInsets.all(32),
             child: Column(
               children: <Widget>[
                 TextFormField(
                   // メールアドレス入力フォーム
-                  decoration: InputDecoration(labelText: "メールアドレス"),
+                  decoration: const InputDecoration(labelText: "メールアドレス"),
                   onChanged: (String value) {
                     setState(() {
                       newUserEmail = value;
@@ -56,7 +58,7 @@ class _MyAuthPageState extends State<SignUp> {
                 const SizedBox(height: 8),
                 // パスワード入力フォーム
                 TextFormField(
-                  decoration: InputDecoration(labelText: "パスワード（６文字以上）"),
+                  decoration: const InputDecoration(labelText: "パスワード（６文字以上）"),
                   obscureText: true,
                   onChanged: (String value) {
                     setState(() {
@@ -67,7 +69,7 @@ class _MyAuthPageState extends State<SignUp> {
                 const SizedBox(height: 8),
                 // 姓の入力フォーム
                 TextFormField(
-                  decoration: InputDecoration(labelText: "姓"),
+                  decoration: const InputDecoration(labelText: "姓"),
                   onChanged: (String value) {
                     setState(() {
                       lastName = value;
@@ -77,7 +79,7 @@ class _MyAuthPageState extends State<SignUp> {
                 const SizedBox(height: 8),
                 // 名の入力フォーム
                 TextFormField(
-                  decoration: InputDecoration(labelText: "名"),
+                  decoration: const InputDecoration(labelText: "名"),
                   onChanged: (String value) {
                     setState(() {
                       firstName = value;
@@ -103,7 +105,7 @@ class _MyAuthPageState extends State<SignUp> {
                           infoText = "処理中...";
                         });
                         // アカウント登録はフルネームで行うため、フルネームを生成
-                        fullname = "${lastName}${firstName}";
+                        fullname = "$lastName$firstName";
                         // メールアドレス・パスワードでFirebase authにユーザー登録
                         final FirebaseAuth auth = FirebaseAuth.instance;
                         final UserCredential result =
@@ -154,11 +156,11 @@ class _MyAuthPageState extends State<SignUp> {
                       });
                     }
                   },
-                  child: Text("ユーザー登録"),
+                  child: const Text("ユーザー登録"),
                 ),
                 // ログイン画面に戻るためのボタン
                 ElevatedButton(
-                  child: Text("ログイン画面に戻る"),
+                  child: const Text("ログイン画面に戻る"),
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,

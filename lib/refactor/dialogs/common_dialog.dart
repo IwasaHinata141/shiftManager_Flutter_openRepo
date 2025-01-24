@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/submit_func.dart';
 import '../login_items/login.dart';
 import 'package:flutter/material.dart';
-import 'loading.dart';
+import 'loading_dialog.dart';
 
 /// このファイルはダイアログのウィジェットをまとめたファイル
 /// ダイアログは主にフールプルーフ目的で作っている
@@ -39,14 +39,15 @@ class LogoutDialog extends StatelessWidget {
             try {
               final FirebaseAuth auth = FirebaseAuth.instance;
               await auth.signOut();
+              // ignore: use_build_context_synchronously
               Navigator.pop(context);
               // ignore: use_build_context_synchronously
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
               );
             } catch (e) {
+              // ignore: use_build_context_synchronously
               Navigator.pop(context);
-              print("$e");
               showDialog<bool>(
                   // ignore: use_build_context_synchronously
                   context: context,
@@ -98,8 +99,10 @@ class SubmitDialog extends StatelessWidget {
             await loadingDialog(context: context);
             final infoText = await submitMyshift(
                 startTimeList, endTimeList, duration, groupId);
+            // ignore: use_build_context_synchronously
             Navigator.pop(context);
             showDialog<bool>(
+                // ignore: use_build_context_synchronously
                 context: context,
                 builder: (_) {
                   return ResultDialog(infoText: infoText);
@@ -194,9 +197,9 @@ class WithdrawDialog extends StatelessWidget {
   }
 }
 
-// ignore: camel_case_types
-class minusCheckDialog extends StatelessWidget {
-  const minusCheckDialog({
+
+class MinusCheckDialog extends StatelessWidget {
+  const MinusCheckDialog({
     super.key,
   });
   @override

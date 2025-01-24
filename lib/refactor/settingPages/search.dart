@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/dialog.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading.dart';
-import '../screens/main_screen.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/common_dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/request_func.dart';
-import 'package:provider/provider.dart';
 
 /// グループへの参加申請を行うためのページ
 /// グループの検索はグループIDを使い、その後グループのパスワードを入力して参加申請を行う
@@ -163,20 +161,16 @@ class _SearchGroup extends State<SearchGroup> {
                               alignment: Alignment.centerLeft,
                               child: Row(
                                 children: [
-                                  Container(
-                                    child: Text("${groupName[index]}",
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20)),
-                                  ),
+                                  Text("${groupName[index]}",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20)),
                                   const SizedBox(
                                     width: 10,
                                   ),
-                                  Container(
-                                    child: const Icon(
-                                      Icons.lock,
-                                      size: 20,
-                                    ),
+                                  const Icon(
+                                    Icons.lock,
+                                    size: 20,
                                   ),
                                   const Spacer(),
                                   IconButton(
@@ -242,7 +236,7 @@ class RequestGroup extends StatefulWidget {
 class _RequestGroup extends State<RequestGroup> {
   String password = "";
   String responce = "";
-  var userId;
+  String userId = "";
 
   @override
   Widget build(BuildContext context) {

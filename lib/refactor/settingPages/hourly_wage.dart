@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/dialog.dart';
-import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading.dart';
-import '../screens/main_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/common_dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
 import '../functions/setting_func.dart';
 
 /// 時給設定をするためのページ
@@ -30,7 +28,7 @@ class HourlyWage extends StatefulWidget {
 }
 
 class _HourlyWage extends State<HourlyWage> {
-  var userId;
+  String userId = "";
   String infoText1 = "";
   String newHourlyWage = "";
   Map<String, dynamic> newHourlyWageMap = {};
@@ -207,9 +205,11 @@ class _HourlyWage extends State<HourlyWage> {
                             infoText1 = "フォーマットが違います";
                           }
 
+                          // ignore: use_build_context_synchronously
                           Navigator.pop(context);
                         }
                         showDialog<bool>(
+                            // ignore: use_build_context_synchronously
                             context: context,
                             builder: (_) {
                               return ResultDialog(infoText: infoText1);
