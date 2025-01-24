@@ -66,9 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
           unselectedIconTheme: const IconThemeData(color: Color(0xFF9DA39B)),
           // ラベルの色を指定
           selectedItemColor: const Color(0xFF36AB13),
-          unselectedItemColor:const Color(0xFF9DA39B),
+          unselectedItemColor: const Color(0xFF9DA39B),
           // 背景色を指定
-          backgroundColor:const Color(0xFFEDF0ED),
+          backgroundColor: const Color(0xFFEDF0ED),
           // 選択中のアイテムindex
           currentIndex: widget.count,
           // タップ時のハンドラ
@@ -112,7 +112,7 @@ class DataProvider extends ChangeNotifier {
   // ユーザーのメールアドレス
   String userEmail = "";
   // グループID
-  List groupId = [];
+  List<String> groupId = [];
   // 当月の賃金の情報(予測給与、出勤日、労働時間)
   Map<String, dynamic> salaryInfo = {};
   // 生年月日（初期値では一時的に現在の日付データを格納）
@@ -128,7 +128,7 @@ class DataProvider extends ChangeNotifier {
   // 当月の合計給与
   String summarySalary = "";
   // 加工前シフトデータ（カレンダーページの変更時に使用）
-  Map<String, dynamic> rowShift = {};
+  Map<String, dynamic> rawShift = {};
   // グループ名とグループIDの対応表
   Map<String, dynamic> groupNameMap = {};
 
@@ -155,11 +155,27 @@ class DataProvider extends ChangeNotifier {
     groupName = dataList[10];
     groupCount = dataList[11];
     summarySalary = dataList[12];
-    rowShift = dataList[13];
+    rawShift = dataList[13];
     groupNameMap = dataList[14];
     userEmail = auth.currentUser!.email.toString();
 
     // 状態が変更されたことを通知
+    notifyListeners();
+  }
+
+  // シフトの変更を行う
+  setShift(Map<String, List<String>> newShiftData) {
+    shiftdata = newShiftData;
+    notifyListeners();
+  }
+
+  Future<dynamic> setRawShift() async {
+    final db = FirebaseFirestore.instance;
+    final auth = FirebaseAuth.instance;
+    final userId = auth.currentUser?.uid.toString();
+    final shiftData = await getMyShift(userId, db, hourlyWage, groupNameMap);
+    rawShift = shiftData[3];
+    print("test :${rawShift}");
     notifyListeners();
   }
 }

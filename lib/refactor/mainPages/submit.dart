@@ -251,7 +251,7 @@ class _SubmitPageState extends State<SubmitPage> {
                           width: double.infinity,
                           alignment: Alignment.center,
                           decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 54, 146, 57),
+                            color: Color(0xFF2D7A5D),
                           ),
                           child: const Text(
                             "ー 予測給与 ー",
@@ -449,7 +449,7 @@ class _SubmitPageState extends State<SubmitPage> {
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(0)),
-                    backgroundColor: const Color.fromARGB(255, 54, 146, 57),
+                    backgroundColor: const Color(0xFF2D7A5D),
                   ),
                   onPressed: () async {
                     for (int i = 0; i < salaryList.length; i++) {

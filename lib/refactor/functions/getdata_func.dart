@@ -12,7 +12,7 @@ Future<List> getData(db) async {
   // FirestoreからユーザーのグループID、生年月日、名前、時給を取得
   final userInfo = await getUserInfo(userId);
   // グループID
-  final groupId = userInfo[0];
+  final List<String> groupId = userInfo[0];
   // 生年月日
   final birthday = userInfo[1];
   // 名前
@@ -40,7 +40,7 @@ Future<List> getData(db) async {
   // 複数のグループでの給与の合計金額を取得
   final summarySalary = shiftdata[2];
   // 加工前シフトデータ（カレンダーページの変更時に使用する）
-  final rowShift = shiftdata[3];
+  final rawShift = shiftdata[3];
 
   // 取得した値をリストにまとめて返す
   return [
@@ -57,7 +57,7 @@ Future<List> getData(db) async {
     groupName,
     groupCount,
     summarySalary,
-    rowShift,
+    rawShift,
     groupNameMap
   ];
 }
@@ -96,7 +96,7 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
   // 合計給与を文字列に変換した後に代入する変数
   String summarySalaryText = "";
   // 加工前のシフトデータを格納する
-  Map<String, dynamic> rowshift = {};
+  Map<String, dynamic> rawshift = {};
   // Firestoreのシフトデータへの参照
   final doc_ref_shift = db
       .collection("Users")
@@ -106,7 +106,7 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
   // 参照からのデータをMap型で取得
   await doc_ref_shift.get().then((DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
-    rowshift = data;
+    rawshift = data;
     // シフトデータはグループごとに分けているため、要素数で所属グループ数を取得できる
     // 所属グループ数が1つか、それ以外かで分岐
     if (data.length != 1) {
@@ -184,7 +184,7 @@ Future<List<dynamic>> getMyShift(userId, db, hourlyWage, groupNameMap) async {
       summarySalaryText = numformatter.format(summarySalary);
     }
   });
-  return [shift, salaryInfo, summarySalaryText, rowshift];
+  return [shift, salaryInfo, summarySalaryText, rawshift];
 }
 
 /// 1グループごとに時給とシフトデータから給与を計算する関数
@@ -324,7 +324,7 @@ Future getUserInfo(userId) async {
   final docRef =
       db.collection('Users').doc(userId).collection("MyInfo").doc("userInfo");
   // グループIDを格納するリスト
-  var groupId = [];
+  List<String> groupId = [];
   // 生年月日
   DateTime birthday;
   // ユーザー名

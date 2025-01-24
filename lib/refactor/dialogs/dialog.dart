@@ -111,29 +111,10 @@ class SubmitDialog extends StatelessWidget {
   }
 }
 
+
 // ignore: must_be_immutable
 class ResultDialog extends StatelessWidget {
   ResultDialog({super.key, required this.infoText});
-  String infoText = "";
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: Text(infoText),
-      actions: [
-        GestureDetector(
-          child: const Text("閉じる"),
-          onTap: () {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-        )
-      ],
-    );
-  }
-}
-
-// ignore: must_be_immutable
-class ResultDialogPop extends StatelessWidget {
-  ResultDialogPop({super.key, required this.infoText});
   String infoText = "";
   @override
   Widget build(BuildContext context) {
@@ -235,10 +216,3 @@ class minusCheckDialog extends StatelessWidget {
   }
 }
 
-class addShiftDialog extends StatelessWidget {
-  const addShiftDialog({super.key});
-  @override
-  Widget build(BuildContext content){
-    return AlertDialog();
-  }
-}

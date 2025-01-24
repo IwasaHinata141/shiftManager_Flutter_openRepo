@@ -22,7 +22,7 @@ import '../settingPages/hourly_wage.dart';
 
 class Setting extends StatelessWidget {
   const Setting({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,30 +38,21 @@ class Setting extends StatelessWidget {
         return SingleChildScrollView(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 70,
-                      padding: const EdgeInsets.only(left: 10),
-                      child: CircleAvatar(
-                      backgroundColor: Colors.grey[200],
-                        radius: 40,
-                      child: const Icon(Icons.person,size: 65,color: Colors.grey,),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(dataProvider.username),
-                          Text(dataProvider.userEmail),
-                        ],
-                      ),
-                    ),
-                  ],
+              Container(
+                color: Color(0xFF2D7A5D),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                          width: double.infinity,
+                          child: Text(dataProvider.username,style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20))),
+                      Container(
+                          width: double.infinity,
+                          child: Text(dataProvider.userEmail,style: TextStyle(color: Colors.white))),
+                    ],
+                  ),
                 ),
               ),
 
@@ -83,7 +74,6 @@ class Setting extends StatelessWidget {
                 birthday: dataProvider.birthday,
                 username: dataProvider.username,
               ),
-              
 
               ///Edtinotification(),
               Container(
@@ -100,13 +90,16 @@ class Setting extends StatelessWidget {
                 ),
               ),
               EditHourlyWage(
-                hourlyWage: dataProvider.hourlyWage,
+                  hourlyWage: dataProvider.hourlyWage,
+                  groupName: dataProvider.groupName,
+                  groupId: dataProvider.groupId,
+                  groupNameMap: dataProvider.groupNameMap),
+              const EntryGroup(),
+              WithdrawGroup(
                 groupName: dataProvider.groupName,
                 groupId: dataProvider.groupId,
-                groupNameMap:dataProvider.groupNameMap
+                groupNameMap: dataProvider.groupNameMap,
               ),
-              const EntryGroup(),
-              WithdrawGroup(groupName: dataProvider.groupName, groupId: dataProvider.groupId,groupNameMap: dataProvider.groupNameMap,),
               Container(
                 padding: const EdgeInsets.only(left: 15),
                 height: 40,
@@ -143,7 +136,7 @@ class EntryGroup extends StatelessWidget {
       height: 70,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => SearchGroup()),
           );
@@ -167,9 +160,9 @@ class WithdrawGroup extends StatelessWidget {
     required this.groupId,
     required this.groupNameMap,
   });
-  List groupName =[];
+  List groupName = [];
   List groupId = [];
-  Map<String,dynamic> groupNameMap = {};
+  Map<String, dynamic> groupNameMap = {};
 
   @override
   Widget build(BuildContext context) {
@@ -178,13 +171,17 @@ class WithdrawGroup extends StatelessWidget {
       width: double.infinity,
       height: 70,
       child: ElevatedButton(
-        onPressed: () async{
-          Navigator.pushReplacement(
+        onPressed: () async {
+          Navigator.push(
             // ignore: use_build_context_synchronously
             context,
-            MaterialPageRoute(builder: (context) => Withdraw(groupName: groupName, groupId: groupId,groupNameMap: groupNameMap,)),
+            MaterialPageRoute(
+                builder: (context) => Withdraw(
+                      groupName: groupName,
+                      groupId: groupId,
+                      groupNameMap: groupNameMap,
+                    )),
           );
-          
         },
         style: ElevatedButton.styleFrom(
             alignment: Alignment.centerLeft,
@@ -196,62 +193,7 @@ class WithdrawGroup extends StatelessWidget {
     );
   }
 }
-/*
-class Edtinotification extends StatelessWidget {
-  const Edtinotification({
-    super.key,
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 1),
-      width: double.infinity,
-      height: 70,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => NotificationSetting()));
-        },
-        child: Text("通知設定"),
-        style: ElevatedButton.styleFrom(
-            alignment: Alignment.centerLeft,
-            backgroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
-      ),
-    );
-  }
-}
-
-
-class Announcement extends StatelessWidget {
-  const Announcement({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 1),
-      width: double.infinity,
-      height: 70,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => Announce()));
-        },
-        child: Text("運営からのお知らせ"),
-        style: ElevatedButton.styleFrom(
-            alignment: Alignment.centerLeft,
-            backgroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(0))),
-      ),
-    );
-  }
-}
-*/
 // ignore: must_be_immutable
 class EditHourlyWage extends StatelessWidget {
   EditHourlyWage({
@@ -261,10 +203,10 @@ class EditHourlyWage extends StatelessWidget {
     required this.groupId,
     required this.groupNameMap,
   });
-  Map<String,dynamic> hourlyWage = {};
+  Map<String, dynamic> hourlyWage = {};
   List groupName = [];
   List groupId = [];
-  Map<String,dynamic> groupNameMap = {};
+  Map<String, dynamic> groupNameMap = {};
 
   @override
   Widget build(BuildContext context) {
@@ -274,7 +216,7 @@ class EditHourlyWage extends StatelessWidget {
       height: 70,
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushReplacement(
+          Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => HourlyWage(

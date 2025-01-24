@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/deleteShiftDialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/dialogs/dialog.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/editShiftDialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/addExtraShiftDailog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/reload_func.dart';
 import 'package:flutter_application_1_shift_manager/refactor/screens/main_screen.dart';
 import 'package:intl/intl.dart';
@@ -48,6 +52,8 @@ class _ReceivePage extends State<ReceivePage> {
   Map<String, dynamic> salaryInfo = {};
   // 合計給与金額
   Map<String, dynamic> summarySalary = {};
+  // シフト変更後のシフトデータ
+  Map<String, dynamic> reloadedShiftData = {};
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +73,10 @@ class _ReceivePage extends State<ReceivePage> {
                 onPressed: () async {
                   await loadingDialog(context: context);
                   try {
-                    await context.read<DataProvider>().fetchData().timeout(const Duration(seconds: 3));
+                    await context
+                        .read<DataProvider>()
+                        .fetchData()
+                        .timeout(const Duration(seconds: 2));
                     Navigator.pop(context);
                   } on TimeoutException catch (e) {
                     print("errorMessage:${e}");
@@ -79,7 +88,6 @@ class _ReceivePage extends State<ReceivePage> {
                           return ResultDialog(infoText: infoText);
                         });
                   }
-                  
                 },
                 icon: const Icon(Icons.restart_alt)),
           ),
@@ -141,8 +149,8 @@ class _ReceivePage extends State<ReceivePage> {
                               fontSize: 20,
                               color: Color(0xFF266901)),
                           formatButtonVisible: false,
-                          leftChevronVisible: true,
-                          rightChevronVisible: true,
+                          leftChevronVisible: false,
+                          rightChevronVisible: false,
                         ),
                         calendarStyle: const CalendarStyle(
                             markerDecoration: BoxDecoration(
@@ -201,7 +209,7 @@ class _ReceivePage extends State<ReceivePage> {
                             dataProvider.hourlyWage,
                             dataProvider.groupName,
                             dataProvider.groupId,
-                            dataProvider.rowShift,
+                            dataProvider.rawShift,
                           );
                           setState(() {
                             _focusedDay = focusedDay;
@@ -229,7 +237,43 @@ class _ReceivePage extends State<ReceivePage> {
                             )
                           ]),
                           child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () async {
+                                ///await loadingDialog(context: context);
+                                try {
+                                  // 追加シフトの入力ダイアログ
+                                  showDialog<Map<String, List<String>>>(
+                                      context: context,
+                                      builder: (_) {
+                                        return addShiftDialog(
+                                          selectedDay: DateFormat('yyyy/MM/dd')
+                                              .format(_focusedDay),
+                                          groupNameMap:
+                                              dataProvider.groupNameMap,
+                                          groupId: dataProvider.groupId,
+                                          shiftData: dataProvider.shiftdata,
+                                        );
+                                      }).then((value) async {
+                                    // ダイアログから返された値を受け取る
+                                    if (value != null && mounted) {
+                                      // ignore: use_build_context_synchronously
+                                      context
+                                          .read<DataProvider>()
+                                          .setShift(value);
+                                    }
+                                    await context
+                                        .read<DataProvider>()
+                                        .setRawShift();
+                                  });
+                                } catch (e) {
+                                  var infoText = "エラーが発生しました";
+                                  Navigator.pop(context);
+                                  showDialog<bool>(
+                                      context: context,
+                                      builder: (_) {
+                                        return ResultDialog(infoText: infoText);
+                                      });
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15)),
@@ -239,7 +283,7 @@ class _ReceivePage extends State<ReceivePage> {
                                 children: [
                                   Icon(
                                     Icons.add_circle_outline,
-                                    size: 20,
+                                    size: 25,
                                     color: Colors.white,
                                   ),
                                   SizedBox(
@@ -249,9 +293,6 @@ class _ReceivePage extends State<ReceivePage> {
                                     "追加",
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  SizedBox(
-                                    width: 5,
-                                  )
                                 ],
                               )),
                         ),
@@ -264,12 +305,48 @@ class _ReceivePage extends State<ReceivePage> {
                             BoxShadow(
                               color: Colors.grey,
                               spreadRadius: 1.0,
-                              blurRadius: 10.0,
+                              blurRadius: 8.0,
                               offset: Offset(5, 5),
                             )
                           ]),
                           child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                try {
+                                  // 追加シフトの入力ダイアログ
+                                  showDialog<Map<String, List<String>>>(
+                                      context: context,
+                                      builder: (_) {
+                                        return editShiftDialog(
+                                          selectedDay: DateFormat('yyyy/MM/dd')
+                                              .format(_focusedDay),
+                                          groupNameMap:
+                                              dataProvider.groupNameMap,
+                                          groupId: dataProvider.groupId,
+                                          shiftData: dataProvider.shiftdata,
+                                          rawShift: dataProvider.rawShift,
+                                        );
+                                      }).then((value) async {
+                                    // ダイアログから返された値を受け取る
+                                    if (value != null && mounted) {
+                                      // ignore: use_build_context_synchronously
+                                      context
+                                          .read<DataProvider>()
+                                          .setShift(value);
+                                    }
+                                    await context
+                                        .read<DataProvider>()
+                                        .setRawShift();
+                                  });
+                                } catch (e) {
+                                  var infoText = "エラーが発生しました";
+                                  Navigator.pop(context);
+                                  showDialog<bool>(
+                                      context: context,
+                                      builder: (_) {
+                                        return ResultDialog(infoText: infoText);
+                                      });
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15)),
@@ -278,20 +355,17 @@ class _ReceivePage extends State<ReceivePage> {
                               child: const Row(
                                 children: [
                                   Icon(
-                                    Icons.edit,
-                                    size: 20,
+                                    Icons.edit_note,
+                                    size: 25,
                                     color: Colors.white,
                                   ),
                                   SizedBox(
-                                    width: 10.0,
+                                    width: 8.0,
                                   ),
                                   Text(
                                     "編集",
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  SizedBox(
-                                    width: 5,
-                                  )
                                 ],
                               )),
                         ),
@@ -309,7 +383,43 @@ class _ReceivePage extends State<ReceivePage> {
                             )
                           ]),
                           child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                try {
+                                  // 追加シフトの入力ダイアログ
+                                  showDialog<Map<String, List<String>>>(
+                                      context: context,
+                                      builder: (_) {
+                                        return deleteShiftDialog(
+                                          selectedDay: DateFormat('yyyy/MM/dd')
+                                              .format(_focusedDay),
+                                          groupNameMap:
+                                              dataProvider.groupNameMap,
+                                          groupId: dataProvider.groupId,
+                                          shiftData: dataProvider.shiftdata,
+                                          rawShift: dataProvider.rawShift,
+                                        );
+                                      }).then((value) async {
+                                    // ダイアログから返された値を受け取る
+                                    if (value != null && mounted) {
+                                      // ignore: use_build_context_synchronously
+                                      context
+                                          .read<DataProvider>()
+                                          .setShift(value);
+                                    }
+                                    await context
+                                        .read<DataProvider>()
+                                        .setRawShift();
+                                  });
+                                } catch (e) {
+                                  var infoText = "エラーが発生しました";
+                                  Navigator.pop(context);
+                                  showDialog<bool>(
+                                      context: context,
+                                      builder: (_) {
+                                        return ResultDialog(infoText: infoText);
+                                      });
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15)),
@@ -319,19 +429,16 @@ class _ReceivePage extends State<ReceivePage> {
                                 children: [
                                   Icon(
                                     Icons.delete_outline,
-                                    size: 20,
+                                    size: 25,
                                     color: Colors.white,
                                   ),
                                   SizedBox(
-                                    width: 10.0,
+                                    width: 8.0,
                                   ),
                                   Text(
                                     "削除",
                                     style: TextStyle(color: Colors.white),
                                   ),
-                                  SizedBox(
-                                    width: 5,
-                                  )
                                 ],
                               )),
                         ),
@@ -345,7 +452,7 @@ class _ReceivePage extends State<ReceivePage> {
                   child: Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF36AB13),
+                      color: const Color(0xFF2D7A5D),
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: const [
                         BoxShadow(
@@ -360,7 +467,7 @@ class _ReceivePage extends State<ReceivePage> {
                     padding: const EdgeInsets.only(left: 10),
                     child: Text("${_focusedDay.month} 月 ${_focusedDay.day} 日",
                         style:
-                            const TextStyle(fontSize: 13, color: Colors.white)),
+                            const TextStyle(fontSize: 20, color: Colors.white)),
                   ),
                 ),
 

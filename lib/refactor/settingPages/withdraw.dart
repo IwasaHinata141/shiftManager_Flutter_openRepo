@@ -49,14 +49,7 @@ class _WithdrawGroup extends State<Withdraw> {
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
           onPressed: () {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ChangeNotifierProvider(
-                        create: (_) => DataProvider(),
-                        child: MyHomePage(
-                          count: 2,
-                        ))));
+            Navigator.pop(context);
           },
         ),
       ),

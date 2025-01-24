@@ -46,14 +46,7 @@ class _SearchGroup extends State<SearchGroup> {
         leading: IconButton(
           icon: const Icon(Icons.chevron_left),
           onPressed: () {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ChangeNotifierProvider(
-                        create: (_) => DataProvider(),
-                        child: MyHomePage(
-                          count: 2,
-                        ))));
+            Navigator.pop(context);
           },
         ),
       ),
@@ -408,7 +401,7 @@ class _RequestGroup extends State<RequestGroup> {
                                 // ignore: use_build_context_synchronously
                                 context: context,
                                 builder: (_) {
-                                  return ResultDialogPop(infoText: responce);
+                                  return ResultDialog(infoText: responce);
                                 });
                           },
                         ),

@@ -36,8 +36,7 @@ class _ResetPassword extends State<ResetPassword> {
           icon: const Icon(Icons.chevron_left),
           // ログインページへ戻る
           onPressed: () {
-            Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => LoginPage()));
+            Navigator.pop(context);
           },
         ),
       ),

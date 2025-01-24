@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1_shift_manager/refactor/login_items/sign_up.dart';
 import 'package:flutter_application_1_shift_manager/refactor/login_items/login_action.dart';
-import '../mainPages/reset_password.dart';
+import 'reset_password.dart';
 
 // ログイン画面
 /* 
@@ -58,7 +58,7 @@ class _LoginPage extends State<LoginPage> {
                     height: 40,
                     child: TextButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ResetPassword()),
