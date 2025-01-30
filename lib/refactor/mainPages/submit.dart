@@ -48,7 +48,6 @@ class _SubmitPageState extends State<SubmitPage> {
   String groupId = "";
   String hourlyWage = "";
   String? dropdownValue;
-  bool minusCheck = true;
   var _groupValue = 0;
 
   @override
@@ -70,71 +69,89 @@ class _SubmitPageState extends State<SubmitPage> {
                     IconButton(
                         alignment: Alignment.centerLeft,
                         onPressed: () async => {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: StatefulBuilder(
-                                      builder: (BuildContext context,
-                                              StateSetter setState) =>
-                                          Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: List.generate(
-                                          // 配列の要素数だけRadioListTileを生成
-                                          dataProvider.groupName.length,
-                                          (index) => RadioListTile(
-                                            value: index, // 値をインデックスにする
-                                            groupValue: _groupValue,
-                                            title: Text(dataProvider.groupName[
-                                                index]), // テキストをリストの要素から取得
-                                            onChanged: (int? value) async {
-                                              final newstatus = await getStatus(
-                                                  dataProvider.groupId[index]);
-                                              final newduration =
-                                                  await getDuration(dataProvider
-                                                      .groupId[index]);
-                                              final newstartTimeList =
-                                                  await generateEmptyList(
-                                                      newduration.length);
-                                              final newendTimeList =
-                                                  await generateEmptyList(
-                                                      newduration.length);
+                              if (dataProvider.groupId[0] == "no data")
+                                {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        return ResultDialog(
+                                            infoText: "グループに所属していません");
+                                      })
+                                }
+                              else
+                                {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: StatefulBuilder(
+                                          builder: (BuildContext context,
+                                                  StateSetter setState) =>
+                                              Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: List.generate(
+                                              // 配列の要素数だけRadioListTileを生成
+                                              dataProvider.groupName.length,
+                                              (index) => RadioListTile(
+                                                value: index, // 値をインデックスにする
+                                                groupValue: _groupValue,
+                                                title: Text(dataProvider
+                                                        .groupName[
+                                                    index]), // テキストをリストの要素から取得
+                                                onChanged: (int? value) async {
+                                                  final newstatus =
+                                                      await getStatus(
+                                                          dataProvider
+                                                              .groupId[index]);
+                                                  final newduration =
+                                                      await getDuration(
+                                                          dataProvider
+                                                              .groupId[index]);
+                                                  final newstartTimeList =
+                                                      await generateEmptyList(
+                                                          newduration.length);
+                                                  final newendTimeList =
+                                                      await generateEmptyList(
+                                                          newduration.length);
 
-                                              setState(() {
-                                                _groupValue = value!;
-                                                groupName = dataProvider
-                                                    .groupName[index];
-                                                groupId =
-                                                    dataProvider.groupId[index];
-                                                status = newstatus;
-                                                duration = newduration;
-                                                startTimeList =
-                                                    newstartTimeList;
-                                                endTimeList = newendTimeList;
-                                                hourlyWage = dataProvider
-                                                    .hourlyWage[groupId];
-                                              });
-                                            },
+                                                  setState(() {
+                                                    _groupValue = value!;
+                                                    groupName = dataProvider
+                                                        .groupName[index];
+                                                    groupId = dataProvider
+                                                        .groupId[index];
+                                                    status = newstatus;
+                                                    duration = newduration;
+                                                    startTimeList =
+                                                        newstartTimeList;
+                                                    endTimeList =
+                                                        newendTimeList;
+                                                    hourlyWage = dataProvider
+                                                        .hourlyWage[groupId];
+                                                  });
+                                                },
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ).then((value) => setState(() {
-                                    reloadedData["status"] = status;
-                                    reloadedData["duration"] = duration;
-                                    reloadedData["startTimeList"] =
-                                        startTimeList;
-                                    reloadedData["endTimeList"] = endTimeList;
-                                    reloadedData["groupName"] = groupName;
-                                    reloadedData["groupId"] = groupId;
-                                    reloadedData["hourlyWage"] = hourlyWage;
-                                    predictSalary = "0";
-                                    totalWorkTime = "0";
-                                    timeList = {};
-                                    salaryList = {};
-                                  }))
+                                      );
+                                    },
+                                  ).then((value) => setState(() {
+                                        reloadedData["status"] = status;
+                                        reloadedData["duration"] = duration;
+                                        reloadedData["startTimeList"] =
+                                            startTimeList;
+                                        reloadedData["endTimeList"] =
+                                            endTimeList;
+                                        reloadedData["groupName"] = groupName;
+                                        reloadedData["groupId"] = groupId;
+                                        reloadedData["hourlyWage"] = hourlyWage;
+                                        predictSalary = "0";
+                                        totalWorkTime = "0";
+                                        timeList = {};
+                                        salaryList = {};
+                                      }))
+                                }
                             },
                         icon: const Icon(Icons.tune)),
                     IconButton(
@@ -148,15 +165,14 @@ class _SubmitPageState extends State<SubmitPage> {
                                 .timeout(const Duration(seconds: 3));
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
-                          } on TimeoutException catch (e) {
-                            var infoText = "更新に失敗しました";
+                          } on TimeoutException {
                             // ignore: use_build_context_synchronously
                             Navigator.pop(context);
                             showDialog<bool>(
                                 // ignore: use_build_context_synchronously
                                 context: context,
                                 builder: (_) {
-                                  return ResultDialog(infoText: infoText);
+                                  return ResultDialog(infoText: "更新に失敗しました");
                                 });
                           }
                           setState(() {
@@ -455,8 +471,14 @@ class _SubmitPageState extends State<SubmitPage> {
                     backgroundColor: const Color(0xFF2D7A5D),
                   ),
                   onPressed: () async {
+                    bool minusCheck = true;
                     for (int i = 0; i < salaryList.length; i++) {
-                      if (int.parse(salaryList["$i"]) < 0) {
+                      String salaryListText = salaryList["$i"];
+                      if (salaryListText.contains(",")) {
+                        salaryListText = salaryList["$i"]!.split(",")[0] +
+                            salaryList["$i"]!.split(",")[1];
+                      }
+                      if (int.parse(salaryListText) < 0) {
                         minusCheck = false;
                       }
                     }
@@ -471,7 +493,14 @@ class _SubmitPageState extends State<SubmitPage> {
                               groupId: groupId,
                             );
                           });
-                    } else {}
+                    } else {
+                      showDialog<bool>(
+                          context: context,
+                          builder: (_) {
+                            return ResultDialog(
+                                infoText: "開始時刻を終了時刻より遅い時刻にしないで下さい");
+                          });
+                    }
                   },
                   child: const Text(
                     "送信",

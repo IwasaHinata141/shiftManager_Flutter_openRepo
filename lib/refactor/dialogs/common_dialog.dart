@@ -102,10 +102,11 @@ class SubmitDialog extends StatelessWidget {
             // ignore: use_build_context_synchronously
             Navigator.pop(context);
             showDialog<bool>(
+                barrierDismissible: false,
                 // ignore: use_build_context_synchronously
                 context: context,
                 builder: (_) {
-                  return ResultDialog(infoText: infoText);
+                  return ResultDialogPopToRoot(infoText: infoText);
                 });
           },
         )
@@ -113,7 +114,6 @@ class SubmitDialog extends StatelessWidget {
     );
   }
 }
-
 
 // ignore: must_be_immutable
 class ResultDialog extends StatelessWidget {
@@ -126,8 +126,28 @@ class ResultDialog extends StatelessWidget {
       actions: [
         GestureDetector(
           child: const Text("閉じる"),
-          onTap: () {
+          onTap: (){
             Navigator.pop(context);
+          },
+        )
+      ],
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class ResultDialogPopToRoot extends StatelessWidget {
+  ResultDialogPopToRoot({super.key, required this.infoText});
+  String infoText = "";
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Text(infoText),
+      actions: [
+        GestureDetector(
+          child: const Text("閉じる"),
+          onTap: () {
+            Navigator.of(context).popUntil((route) => route.isFirst);
           },
         )
       ],
@@ -160,43 +180,51 @@ class WithdrawDialog extends StatelessWidget {
             style: TextStyle(color: Colors.blueAccent),
           ),
           onPressed: () async {
+            print(newGroupId);
             if (newGroupId["1"] != null) {
-              if (groupId.length == newGroupId.length) {
-                responce = "選択されていません";
-              } else {
-                try {
-                  final db = FirebaseFirestore.instance;
-                  final auth = FirebaseAuth.instance;
-                  final userId = auth.currentUser?.uid.toString();
+              try {
+                final db = FirebaseFirestore.instance;
+                final auth = FirebaseAuth.instance;
+                final userId = auth.currentUser?.uid.toString();
 
-                  await db
-                      .collection('Users')
-                      .doc(userId)
-                      .collection("MyInfo")
-                      .doc("userInfo")
-                      .update({"groupId": newGroupId});
-                  responce = "処理が完了しました";
-                } catch (e) {
-                  responce = "エラー";
-                }
+                await db
+                    .collection('Users')
+                    .doc(userId)
+                    .collection("MyInfo")
+                    .doc("userInfo")
+                    .update({"groupId": newGroupId});
+                responce = "処理が完了しました";
+              } catch (e) {
+                responce = "エラー";
               }
+
               // ignore: use_build_context_synchronously
             } else {
               responce = "選択されていません";
             }
-            showDialog<bool>(
-                // ignore: use_build_context_synchronously
-                context: context,
-                builder: (_) {
-                  return ResultDialog(infoText: responce);
-                });
+            if (responce == "処理が完了しました") {
+              showDialog<bool>(
+                  // ignore: use_build_context_synchronously
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (_) {
+                    return ResultDialogPopToRoot(infoText: responce);
+                  });
+            } else {
+              showDialog<bool>(
+                  // ignore: use_build_context_synchronously
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (_) {
+                    return ResultDialog(infoText: responce);
+                  });
+            }
           },
         )
       ],
     );
   }
 }
-
 
 class MinusCheckDialog extends StatelessWidget {
   const MinusCheckDialog({
@@ -218,4 +246,3 @@ class MinusCheckDialog extends StatelessWidget {
     );
   }
 }
-

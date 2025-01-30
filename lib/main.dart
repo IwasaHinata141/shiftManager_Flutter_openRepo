@@ -55,10 +55,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'shiftManager',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF36AB13)),
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF36AB13)),
           useMaterial3: true,
         ),
         home: StreamBuilder<User?>(
@@ -74,14 +74,16 @@ class MyApp extends StatelessWidget {
                   final auth = FirebaseAuth.instance;
                   //ユーザーID
                   final userId = auth.currentUser?.uid.toString();
+                  if (fcmToken != null) {
+                    //FirestoreにFCMトークンを保存
+                    db
+                        .collection('Users')
+                        .doc(userId)
+                        .collection("MyInfo")
+                        .doc("userInfo")
+                        .update({"token": fcmToken});
+                  }
 
-                  //FirestoreにFCMトークンを保存
-                  db
-                      .collection('Users')
-                      .doc(userId)
-                      .collection("MyInfo")
-                      .doc("userInfo")
-                      .update({"token": fcmToken});
                   //Providerを作成、MyHomePageへ移行
                   return FutureBuilder(
                     future: DataProvider().fetchData(),
@@ -102,7 +104,8 @@ class MyApp extends StatelessWidget {
                                 child: const CircularProgressIndicator(
                                   valueColor:
                                       AlwaysStoppedAnimation(Colors.green),
-                                  backgroundColor: Color.fromARGB(255, 220, 237, 200),
+                                  backgroundColor:
+                                      Color.fromARGB(255, 220, 237, 200),
                                   strokeWidth: 8.0,
                                 ),
                               ),

@@ -38,7 +38,7 @@ Future<String> loginAction(loginUserEmail, loginUserPassword, context) async {
       );
       print('User granted permission: ${settings.authorizationStatus}');
       // FCMトークンを取得
-      String? fcmToken = await messaging.getToken();
+      var fcmToken = await messaging.getToken();
       // FCMトークンを付加してMyAppに遷移
       Navigator.pushReplacement(
         context,
@@ -56,13 +56,14 @@ Future<String> loginAction(loginUserEmail, loginUserPassword, context) async {
       return infoText;
     }
   } on FirebaseAuthException catch (e) {
+    // 列挙保護が有効なため、エラーコードはinvalid-credentialのみが返ってくる
+    print("e.code:${e.code}");
     // ログインに失敗した場合
-    if (e.code == 'user-not-found') {
-      // ユーザーが見つからない場合
-      infoText = "該当のユーザーが存在しません";
-    } else if (e.code == 'wrong-password') {
+    if (e.code == 'invalid-credential') {
       // パスワードが間違っている場合
       infoText = "入力情報に誤りがある可能性があります";
+    } else {
+      infoText = "エラー";
     }
     return infoText;
   } on Exception {

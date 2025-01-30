@@ -39,8 +39,6 @@ class _ReceivePage extends State<ReceivePage> {
   DateTime? _selectedDay;
   // 選択されている日付（月変更時に自動でその月に切り替わる）
   DateTime _focusedDay = DateTime.now();
-  // 現在の日付
-  DateTime _currentDay = DateTime.now();
   // 給与情報、出勤回数、労働時間
   Map<String, dynamic> salaryInfo = {};
   // 合計給与金額
@@ -73,7 +71,7 @@ class _ReceivePage extends State<ReceivePage> {
                         .timeout(const Duration(seconds: 2));
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context);
-                  } on TimeoutException catch (e) {
+                  } on TimeoutException {
                     var infoText = "更新に失敗しました";
                     // ignore: use_build_context_synchronously
                     Navigator.pop(context);
@@ -132,7 +130,7 @@ class _ReceivePage extends State<ReceivePage> {
                         // 選択されている日付
                         focusedDay: _focusedDay,
                         // 現在の日付
-                        currentDay: _currentDay,
+                        currentDay: _focusedDay,
                         // 行の高さ指定
                         rowHeight: 48,
                         // 曜日部分の高さ指定
@@ -182,7 +180,6 @@ class _ReceivePage extends State<ReceivePage> {
                                         .format(focusedDay)] ??
                                 [];
                             _focusedDay = selectedDay;
-                            _currentDay = selectedDay;
                           });
                         },
                         // 表示するイベントのリストを設定
@@ -234,7 +231,6 @@ class _ReceivePage extends State<ReceivePage> {
                           ]),
                           child: ElevatedButton(
                               onPressed: () async {
-                                ///await loadingDialog(context: context);
                                 try {
                                   // 追加シフトの入力ダイアログ
                                   showDialog<Map<String, List<String>>>(

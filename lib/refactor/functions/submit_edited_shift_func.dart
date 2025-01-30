@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-Future<String> submitEditedShift(submitData) async {
-  String responseText = "";
+Future submitEditedShift(submitData) async {
   var auth = FirebaseAuth.instance;
   var userId = auth.currentUser!.uid.toString();
 
@@ -17,7 +16,4 @@ Future<String> submitEditedShift(submitData) async {
       .doc("shift")
       .update(submitShift);
   
-  responseText = "シフトの提出が完了しました。";
-
-  return responseText;
 }

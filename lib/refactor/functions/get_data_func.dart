@@ -22,7 +22,7 @@ Future<List> getData(db) async {
   // グループIDの数から所属グループの数を取得
   final int groupCount = groupId.length;
   // グループ名のリストを取得
-  final groupNameMap = await getGroupNameMap(db,userId);
+  final groupNameMap = await getGroupNameMap(db, userId);
   // シフトデータと給与金額を取得する関数
   final shiftdata = await getMyShift(userId, db, hourlyWage, groupNameMap);
   // 募集中のシフトの期間を取得
@@ -34,7 +34,7 @@ Future<List> getData(db) async {
   // シフトが募集中か停止中かの真偽値を取得
   final bool status = await getStatus(groupId[0]);
   // 所属グループの名前をリストで取得
-  final groupName = await getGroupName(groupId, db,groupNameMap);
+  final groupName = await getGroupName(groupId, db, groupNameMap);
   // 給与のデータを取得
   final Map<String, dynamic> salaryInfo = shiftdata[1]["salaryInfo"];
   // 複数のグループでの給与の合計金額を取得
@@ -65,20 +65,17 @@ Future<List> getData(db) async {
 /// ---------以下はgetData()で使用した関数--------- ///
 /// グループ名とグループIDの紐づけを行っているデータを取得する関数
 /// groupNameListはキーがグループID、値がグループ名
-Future<Map<String,dynamic>> getGroupNameMap(db,userId) async{
+Future<Map<String, dynamic>> getGroupNameMap(db, userId) async {
   // 戻り値を格納する変数
   Map<String, dynamic> groupNameMap = {};
   // Firestoreへの参照
-  final docRefGroupName = db
-      .collection("Users")
-      .doc(userId)
-      .collection("MyInfo")
-      .doc("userInfo");
+  final docRefGroupName =
+      db.collection("Users").doc(userId).collection("MyInfo").doc("userInfo");
   // データの取得と変数への格納
-   await docRefGroupName.get().then((DocumentSnapshot doc) async {
+  await docRefGroupName.get().then((DocumentSnapshot doc) async {
     final data = doc.data() as Map<String, dynamic>;
     groupNameMap = data["groupNameList"];
-   });
+  });
   return groupNameMap;
 }
 
@@ -205,8 +202,8 @@ Future<Map<String, dynamic>> calculateSalary(
   // 当月の1日の日付
   final startDay = formatter.format(DateTime(now.year, now.month, 1));
   // 当月の月末の日付
-  final endDay = formatter
-      .format(DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1)));
+  final endDay = formatter.format(
+      DateTime(now.year, now.month + 1, 1).subtract(const Duration(days: 1)));
   // startDayのDatetime型
   final firstDay = formatter.parse(startDay);
   // endDayのDatetime型
@@ -275,15 +272,27 @@ Future<List<String>> getDuration(groupId) async {
       .doc("tableRequest");
   // 参照からデータを取得
   await docRefDuration.get().then((DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    // シフトの開始日
-    var start = data["start"];
-    // シフトの終了日
-    var end = data["end"];
+    String start = "";
+    String end = "";
+    if (doc.data() == null) {
+      /// グループが削除されている場合に入る分岐
+      /// 仮の日付を入れていおく
+      // シフトの開始日
+      start = "2025/01/01";
+      // シフトの終了日
+      end = "2025/01/01";
+    } else {
+      final data = doc.data() as Map<String, dynamic>;
+      // シフトの開始日
+      start = data["start"];
+      // シフトの終了日
+      end = data["end"];
+    }
+
     // シフトが募集されていない場合(no data)は仮の日付を代入
     if (start == "no data") {
-      start = "2024/01/01";
-      end = "2024/01/01";
+      start = "2025/01/01";
+      end = "2025/01/01";
     }
     // 日付の文字列を成形 例：(2000/01/01) → (2000-01-01)
     final startDay = start.replaceAll('/', '-');
@@ -378,8 +387,13 @@ Future<bool> getStatus(groupId) async {
       .doc("status");
   // 参照を基にデータを取得
   await docRef.get().then((DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    status = data["status"];
+    if (doc.data() == null) {
+      /// グループが削除されている場合に入る分岐
+      status = false;
+    } else {
+      final data = doc.data() as Map<String, dynamic>;
+      status = data["status"];
+    }
   });
   return status;
 }
@@ -391,8 +405,8 @@ Future<List> getGroupName(groupId, db, groupNameMap) async {
   // グループIDの数だけ繰り返し処理
   // グループIDを基にしてグループ名を格納
   for (int i = 0; i < groupId.length; i++) {
-      // グループ名をリストに格納
-      groupName.add(groupNameMap[groupId[i]]);
+    // グループ名をリストに格納
+    groupName.add(groupNameMap[groupId[i]]);
   }
   return groupName;
 }

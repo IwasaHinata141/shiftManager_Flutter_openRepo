@@ -1,3 +1,4 @@
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/submit_edited_shift_func.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
@@ -27,6 +28,7 @@ class _EditShiftDialog extends State<EditShiftDialog> {
   List<String> endTime = [];
   Map<String, List<String>> newShiftData = {};
   List<dynamic> relatedGroupId = [];
+  String infoText = "";
   @override
   void initState() {
     super.initState();
@@ -58,6 +60,11 @@ class _EditShiftDialog extends State<EditShiftDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Container(
+                width: double.maxFinite,
+                alignment: Alignment.center,
+                child: Text(infoText),
+              ),
               Container(
                 width: double.maxFinite,
                 alignment: Alignment.centerLeft,
@@ -105,13 +112,11 @@ class _EditShiftDialog extends State<EditShiftDialog> {
                                       return Text(
                                         startTime[index],
                                         style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 23),
+                                            color: Colors.black, fontSize: 23),
                                       );
                                     }()),
                                     onPressed: () {
-                                      picker.DatePicker.showTimePicker(
-                                          context,
+                                      picker.DatePicker.showTimePicker(context,
                                           showTitleActions: true,
                                           showSecondsColumn: false,
                                           onCancel: () {}, onConfirm: (date) {
@@ -134,13 +139,11 @@ class _EditShiftDialog extends State<EditShiftDialog> {
                                       return Text(
                                         endTime[index],
                                         style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 23),
+                                            color: Colors.black, fontSize: 23),
                                       );
                                     }()),
                                     onPressed: () {
-                                      picker.DatePicker.showTimePicker(
-                                          context,
+                                      picker.DatePicker.showTimePicker(context,
                                           showTitleActions: true,
                                           showSecondsColumn: false,
                                           onCancel: () {}, onConfirm: (date) {
@@ -168,42 +171,74 @@ class _EditShiftDialog extends State<EditShiftDialog> {
                 children: [
                   ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context,widget.shiftData);
                       },
                       child: const Text("キャンセル")),
                   const Spacer(),
                   ElevatedButton(
                       onPressed: () async {
-                        Map<String,dynamic> submitDataInstance = {};
+                        Map<String, dynamic> submitDataInstance = {};
                         List<String> newShiftDataInstance = [];
                         newShiftData = widget.shiftData;
-                        try {
-                          for (int i = 0; i < relatedGroupId.length; i++) {
-                            Map<String, dynamic> submitText = {};
-                            submitText[widget.selectedDay] =
-                                "${startTime[i]} - ${endTime[i]}";
-                            submitDataInstance[relatedGroupId[i]] = {}
-                              ..addAll(widget.rawShift[relatedGroupId[i]])
-                              ..addAll(submitText);
-                            newShiftDataInstance.add(
-                                "${widget.groupNameMap[relatedGroupId[i]]}  ${startTime[i]} - ${endTime[i]}");
-                            newShiftData[widget.selectedDay] =
-                                newShiftDataInstance;
+                        bool timeoutCheck = false;
+                        bool minusCheck = true;
+                        for (int j = 0; j < relatedGroupId.length; j++) {
+                          DateTime startDate =
+                              DateTime.parse("2025-01-20 ${startTime[j]}:00");
+                          DateTime endDate =
+                              DateTime.parse("2025-01-20 ${endTime[j]}:00");
+                         
+                          if (endDate.isBefore(startDate)) {
+                            minusCheck = false;
                           }
-                  
-                          Map<String,dynamic> submitData = {}
-                            ..addAll(widget.rawShift)
-                            ..addAll(submitDataInstance);
-                          String responceMassage =
-                              await submitEditedShift(submitData);
-                          print(responceMassage);
-                        } catch (e) {
-                          String errorMessage = "e";
-                          print(errorMessage);
                         }
-                  
-                        // ignore: use_build_context_synchronously
-                        Navigator.pop(context, newShiftData);
+                        if (minusCheck) {
+                          await loadingDialog(context: context);
+                          try {
+                            for (int i = 0; i < relatedGroupId.length; i++) {
+                              Map<String, dynamic> submitText = {};
+                              submitText[widget.selectedDay] =
+                                  "${startTime[i]} - ${endTime[i]}";
+                              submitDataInstance[relatedGroupId[i]] = {}
+                                ..addAll(widget.rawShift[relatedGroupId[i]])
+                                ..addAll(submitText);
+                              newShiftDataInstance.add(
+                                  "${widget.groupNameMap[relatedGroupId[i]]}  ${startTime[i]} - ${endTime[i]}");
+                              newShiftData[widget.selectedDay] =
+                                  newShiftDataInstance;
+                            }
+
+                            Map<String, dynamic> submitData = {}
+                              ..addAll(widget.rawShift)
+                              ..addAll(submitDataInstance);
+
+                            await submitEditedShift(submitData).timeout(
+                              const Duration(seconds: 5),
+                              onTimeout: () {
+                                timeoutCheck = true;
+                                print("タイムアウトしました。");
+                              },
+                            );
+                            if (timeoutCheck) {
+                              Navigator.pop(context);
+                              setState(() {
+                                infoText = "タイムアウトしました";
+                              });
+                            } else {
+                              Navigator.pop(context);
+                              Navigator.pop(context, newShiftData);
+                            }
+                          } on Exception {
+                            Navigator.pop(context);
+                            setState(() {
+                              infoText = "処理に失敗しました";
+                            });
+                          }
+                        } else {
+                          setState(() {
+                            infoText = "開始時刻を終了時刻より遅い時刻にしないで下さい";
+                          });
+                        }
                       },
                       child: const Text("保存")),
                 ],

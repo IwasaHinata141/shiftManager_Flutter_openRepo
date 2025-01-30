@@ -385,13 +385,15 @@ class _RequestGroup extends State<RequestGroup> {
                                 userId = auth.currentUser!.uid.toString();
                                 responce = await request(
                                     widget.groupId, userId, password);
+                                Navigator.pop(context);
                               } catch (e) {
                                 responce = "エラーが発生しました";
+                                Navigator.pop(context);
                               }
                               // ignore: use_build_context_synchronously
-                              Navigator.pop(context);
                             }
                             showDialog<bool>(
+                                barrierDismissible: false,
                                 // ignore: use_build_context_synchronously
                                 context: context,
                                 builder: (_) {

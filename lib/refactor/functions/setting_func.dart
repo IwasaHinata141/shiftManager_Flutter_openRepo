@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 /// Firestoreににある時給データの変更を行う関数
 /// newHourlyWageMapは新しい時給データ（Map型）
-Future<void> editMyhourlyWage(newHourlyWageMap) async {
+/// グループ名の変更機能を追加した
+Future<void> editMyhourlyWage(newHourlyWageMap,newGroupNameMap) async {
   // Firestoreインスタンス
   final db = FirebaseFirestore.instance;
   // Firebase authインスタンス
@@ -12,12 +13,15 @@ Future<void> editMyhourlyWage(newHourlyWageMap) async {
   // ユーザーID取得
   final userId = auth.currentUser?.uid.toString();
   //Firestoreのドキュメントの該当箇所を更新
+  newHourlyWageMap.addAll({"no data":"1000"});
+  newGroupNameMap.addAll({"no data":"no data"});
+
   await db
       .collection('Users')
       .doc(userId)
       .collection("MyInfo")
       .doc("userInfo")
-      .update({"hourlyWage":newHourlyWageMap});
+      .update({"hourlyWage":newHourlyWageMap,"groupNameList":newGroupNameMap});
 }
 
 /// Firestoreにあるユーザー名と生年月日のデータの変更を行う関数

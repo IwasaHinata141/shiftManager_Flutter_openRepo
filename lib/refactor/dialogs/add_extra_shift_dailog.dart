@@ -1,4 +1,4 @@
-
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/submit_extra_shift_func.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
@@ -25,6 +25,7 @@ class _AddShiftDialog extends State<AddShiftDialog> {
   String dropdownValue = '';
   String startTime = '';
   String endTime = '';
+  String infoText = '';
   Map<String, List<String>> newShiftData = {};
   @override
   void initState() {
@@ -72,7 +73,15 @@ class _AddShiftDialog extends State<AddShiftDialog> {
                 },
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
+              ),
+              Container(
+                width: double.maxFinite,
+                alignment: Alignment.center,
+                child: Text(infoText),
+              ),
+              const SizedBox(
+                height: 5,
               ),
               // ここに時間入力のタイムピッカーを書く
               const Text("勤務時間"),
@@ -156,37 +165,79 @@ class _AddShiftDialog extends State<AddShiftDialog> {
                 children: [
                   ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, widget.shiftData);
                       },
                       child: const Text("キャンセル")),
                   const Spacer(),
                   ElevatedButton(
-                      onPressed: () async{
-                        try {
-                          String groupName = widget.groupNameMap[dropdownValue];
-                          var shift = widget.shiftData[widget.selectedDay];
-                          if (shift == null) {
-                            var newShift = [
-                              "$groupName  $startTime - $endTime"
-                            ];
-                            newShiftData = widget.shiftData;
-                            newShiftData[widget.selectedDay] = newShift;
+                      onPressed: () async {
+                        bool timeoutCheck = false;
+                        if (startTime != '' && endTime != '') {
+                          DateTime startDate =
+                              DateTime.parse("2025-01-20 $startTime:00");
+                          DateTime endDate =
+                              DateTime.parse("2025-01-20 $endTime:00");
+
+                          if (startDate.isBefore(endDate)) {
+                            await loadingDialog(context: context);
+                            try {
+                              // シフトデータをFirestoreに上書きする為の関数を実行
+                              await submitExtraShift(startTime, endTime,
+                                      dropdownValue, widget.selectedDay)
+                                  .timeout(
+                                const Duration(seconds: 5),
+                                onTimeout: () {
+                                  timeoutCheck = true;
+                                  print("タイムアウトしました。");
+                                },
+                              );
+                              // タイムアウトによって分岐
+                              // タイムアウトした場合は画面の表示を変えない
+                              if (timeoutCheck) {
+                                Navigator.pop(context);
+                                setState(() {
+                                  infoText = "タイムアウトしました";
+                                });
+                              } else {
+                                newShiftData = widget.shiftData;
+                                String groupName =
+                                    widget.groupNameMap[dropdownValue];
+                                var shift =
+                                    widget.shiftData[widget.selectedDay];
+                                if (shift == null) {
+                                  // 該当の日付のデータがまだなかった場合
+                                  var newShift = [
+                                    "$groupName  $startTime - $endTime"
+                                  ];
+                                  // 日付をキーとしてデータを追加
+                                  newShiftData[widget.selectedDay] = newShift;
+                                } else {
+                                  // 該当の日付のデータが既にある場合
+                                  // データを既にあるデータの最後尾に加える
+                                  newShiftData[widget.selectedDay]!
+                                      .add("$groupName  $startTime - $endTime");
+                                }
+                                Navigator.pop(context);
+                                Navigator.pop(context, newShiftData);
+                              }
+                            } on Exception {
+                              Navigator.pop(context);
+                              setState(() {
+                                infoText = "処理に失敗しました";
+                              });
+                            }
                           } else {
-                            newShiftData = widget.shiftData;
-                            newShiftData[widget.selectedDay]!.add(
-                                "$groupName  $startTime - $endTime");
+                            setState(() {
+                              infoText = "開始時刻を終了時刻より遅い時刻にしないで下さい";
+                            });
                           }
-                          String infoText =await submitExtraShift(startTime,endTime,dropdownValue,widget.selectedDay);
-                          print(infoText);
-                        } catch (e) {
-                          String errorMessage = e.toString();
-                          print(errorMessage);
+                        } else {
+                          setState(() {
+                            infoText = "時刻を埋めてください";
+                          });
                         }
-                  
-                        // ignore: use_build_context_synchronously
-                        Navigator.pop(context, newShiftData);
                       },
-                      child: const Text("保存")),
+                      child: const Text("追加")),
                 ],
               ),
             ],

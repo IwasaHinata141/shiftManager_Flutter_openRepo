@@ -73,12 +73,17 @@ class _LoginPage extends State<LoginPage> {
                 ElevatedButton(
                   child: const Text("ログイン"),
                   onPressed: () async {
-                    // loginActionはログイン処理を行う関数
-                    answer = await loginAction(
-                        loginUserEmail, loginUserPassword, context);
-                    if (mounted) {
+                    // アドレス・パスワードの未入力を防止
+                    if (loginUserEmail != "" && loginUserPassword != "") {
+                      // loginActionはログイン処理を行う関数
+                      answer = await loginAction(
+                          loginUserEmail, loginUserPassword, context);
                       setState(() {
                         infoText = answer;
+                      });
+                    }else{
+                      setState(() {
+                        infoText = "入力項目を埋めてください";
                       });
                     }
                   },

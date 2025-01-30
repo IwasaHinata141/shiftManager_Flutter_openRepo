@@ -50,6 +50,30 @@ Future<String> submitMyshift(
   shift["start"] = startshift;
   // endをkeyとして終了時刻リストを格納
   shift["end"] = endshift;
+
+  Map<String, dynamic> statusData = {};
+
+  // シフト提出のステータスを更新する。
+  final db = FirebaseFirestore.instance;
+  final auth = FirebaseAuth.instance;
+  final userId = auth.currentUser?.uid.toString();
+  // Firestoreへの参照
+  final docRefMember = db
+      .collection("Groups")
+      .doc(groupId)
+      .collection("groupInfo")
+      .doc("member");
+  // データの取得と変数への格納
+  await docRefMember.get().then((DocumentSnapshot doc) async {
+    statusData = doc.data() as Map<String, dynamic>;
+    for (int i = 1; i < statusData.length + 1; i++) {
+      if (statusData["${i}"]["uid"] == userId) {
+        statusData["${i}"]["situation"] = "done";
+      }
+    }
+  });
+  print(statusData);
+
   // Firebase authインスタンス、ユーザーID
   try {
     var auth = FirebaseAuth.instance;
@@ -59,12 +83,21 @@ Future<String> submitMyshift(
     // Firestoreインスタンス
     final db = FirebaseFirestore.instance;
     // グループのシフトのリクエストドキュメントに書き込み
+    print(uploadData);
+    // シフトデータの書き込み
     await db
         .collection('Groups')
         .doc(groupId)
         .collection("groupInfo")
         .doc("RequestShiftList")
         .update(uploadData);
+    // シフト提出ステータスの書き込み
+    await db
+        .collection("Groups")
+        .doc(groupId)
+        .collection("groupInfo")
+        .doc("member")
+        .update(statusData);
     infoText = "シフトの提出が完了しました。";
   } catch (e) {
     infoText = "エラー\n提出に失敗しました";

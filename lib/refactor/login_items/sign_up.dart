@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
 import 'login.dart';
 import 'package:flutter_application_1_shift_manager/refactor/login_items/sign_up_action.dart';
 
@@ -91,6 +92,7 @@ class _MyAuthPageState extends State<SignUp> {
                 ElevatedButton(
                   onPressed: () async {
                     // 入力情報が抜けていたらinfoTextを更新して表示
+                    await loadingDialog(context: context);
                     try {
                       if (newUserEmail == "" ||
                           newUserPassword == "" ||
@@ -155,6 +157,7 @@ class _MyAuthPageState extends State<SignUp> {
                         infoText = "処理に失敗しました";
                       });
                     }
+                    Navigator.pop(context);
                   },
                   child: const Text("ユーザー登録"),
                 ),

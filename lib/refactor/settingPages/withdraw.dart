@@ -116,8 +116,8 @@ class _WithdrawGroup extends State<Withdraw> {
                           backgroundColor: const Color(0xFFEB6434),
                         ),
                         onPressed: () async {
-                          if (widget.groupId.length == 1 &&
-                              widget.groupId[0] == selectedGroupId) {
+                          print("selectedGroupId:${selectedGroupId}");
+                          if (widget.groupId.length == 1) {
                             newGroupIdMap["1"] = "no data";
                           } else {
                             for (int i = 0; i < widget.groupId.length; i++) {

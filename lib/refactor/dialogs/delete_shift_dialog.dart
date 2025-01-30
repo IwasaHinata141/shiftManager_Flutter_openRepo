@@ -1,3 +1,4 @@
+import 'package:flutter_application_1_shift_manager/refactor/dialogs/loading_dialog.dart';
 import 'package:flutter_application_1_shift_manager/refactor/functions/submit_edited_shift_func.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +27,7 @@ class _DeleteShiftDialog extends State<DeleteShiftDialog> {
   Map<String, List<String>> newShiftData = {};
   List<dynamic> relatedGroupId = [];
   int _shiftValue = 0;
+  String infoText = "";
   var selectedGroupId = "";
   @override
   void initState() {
@@ -58,6 +60,11 @@ class _DeleteShiftDialog extends State<DeleteShiftDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Container(
+                width: double.maxFinite,
+                alignment: Alignment.center,
+                child: Text(infoText),
+              ),
               Container(
                 width: double.maxFinite,
                 alignment: Alignment.centerLeft,
@@ -127,7 +134,7 @@ class _DeleteShiftDialog extends State<DeleteShiftDialog> {
                 children: [
                   ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.pop(context, widget.shiftData);
                       },
                       child: const Text("キャンセル")),
                   const Spacer(),
@@ -135,6 +142,8 @@ class _DeleteShiftDialog extends State<DeleteShiftDialog> {
                       onPressed: () async {
                         Map<String, dynamic> submitData = widget.rawShift;
                         newShiftData = widget.shiftData;
+                        bool timeoutCheck = false;
+                        await loadingDialog(context: context);
                         try {
                           for (int i = 0; i < relatedGroupId.length; i++) {
                             if (i == _shiftValue) {
@@ -144,16 +153,29 @@ class _DeleteShiftDialog extends State<DeleteShiftDialog> {
                                   ?.removeAt(_shiftValue);
                             }
                           }
-                  
-                          String responceMassage =
-                              await submitEditedShift(submitData);
-                          print(responceMassage);
-                        } catch (e) {
-                          String errorMessage = "error";
-                          print(errorMessage);
+
+                          await submitEditedShift(submitData).timeout(
+                            const Duration(seconds: 5),
+                            onTimeout: () {
+                              timeoutCheck = true;
+                              print("タイムアウトしました。");
+                            },
+                          );
+                          if (timeoutCheck) {
+                            Navigator.pop(context);
+                            setState(() {
+                              infoText = "タイムアウトしました";
+                            });
+                          } else {
+                            Navigator.pop(context);
+                            Navigator.pop(context, newShiftData);
+                          }
+                        } on Exception {
+                          Navigator.pop(context);
+                          setState(() {
+                            infoText = "処理に失敗しました";
+                          });
                         }
-                  
-                        Navigator.pop(context, newShiftData);
                       },
                       child: const Text("削除")),
                 ],

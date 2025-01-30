@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-Future<String> submitExtraShift(
+Future submitExtraShift(
     startTime, endTime, groupId, selectedDay) async {
-  String responseText = "";
   Map<String, dynamic> extraShift = {};
   var auth = FirebaseAuth.instance;
   var userId = auth.currentUser!.uid.toString();
@@ -30,7 +29,4 @@ Future<String> submitExtraShift(
       .collection("CompletedShift")
       .doc("shift")
       .update(submitExtraData);
-  responseText = "シフトの提出が完了しました。";
-
-  return responseText;
 }
