@@ -78,10 +78,7 @@ class _LoginPage extends State<LoginPage> {
                       // loginActionはログイン処理を行う関数
                       answer = await loginAction(
                           loginUserEmail, loginUserPassword, context);
-                      setState(() {
-                        infoText = answer;
-                      });
-                    }else{
+                    } else {
                       setState(() {
                         infoText = "入力項目を埋めてください";
                       });

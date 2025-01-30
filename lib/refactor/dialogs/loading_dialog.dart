@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 Future<void> loadingDialog({
   required BuildContext context,
 }) async {
@@ -8,7 +7,7 @@ Future<void> loadingDialog({
       context: context,
       barrierDismissible: false,
       transitionDuration: const Duration(milliseconds: 500),
-      barrierColor: Colors.black.withValues(alpha: 0.5),
+      barrierColor: Colors.black.withOpacity(0.5),
       pageBuilder: (BuildContext context, Animation animation,
           Animation secondaryAnimation) {
         return const PopScope(

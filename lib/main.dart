@@ -38,7 +38,7 @@ void main() async {
   print('User granted permission: ${settings.authorizationStatus}');
 
   //FCMトークンの取得
-  String? fcmToken = await messaging.getToken();
+  String? fcmToken = await messaging.getAPNSToken();
   initializeDateFormatting().then((_) => runApp(MyApp(fcmToken: fcmToken)));
 }
 
